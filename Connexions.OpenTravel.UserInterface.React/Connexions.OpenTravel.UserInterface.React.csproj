@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <PostBuildEvent></PostBuildEvent>
+    <PreBuildEvent></PreBuildEvent>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -17,6 +19,13 @@
     <TreatSpecificWarningsAsErrors />
     <NoWarn>1701;1702;1705</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <Content Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <None Remove="build\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="wwwroot\index.html" />
