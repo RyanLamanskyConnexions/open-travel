@@ -87,19 +87,19 @@ namespace Connexions.OpenTravel.UserInterface
 		/// <returns>A task that returns true if the message was sent, otherwise false.</returns>
 		public async Task<Boolean> SendAsync(ICommandMessage message, TimeSpan timeout)
 		{
-			if (!await this.sendSync.WaitAsync(timeout, this.CancellationToken))
-				return false;
-
 			ArraySegment<byte> messageBytes;
 			using (var memory = new MemoryStream())
 			{
-				using (var writer = new StreamWriter(memory, UTF8 , 4 * 1024, true))
+				using (var writer = new StreamWriter(memory, UTF8, 4 * 1024, true))
 				{
 					jsonSerializer.Serialize(writer, message);
 				}
 
 				messageBytes = new ArraySegment<byte>(memory.ToArray());
 			}
+
+			if (!await this.sendSync.WaitAsync(timeout, this.CancellationToken))
+				return false;
 
 			try
 			{
