@@ -31,6 +31,7 @@ namespace Connexions.OpenTravel.UserInterface
 			app
 				.UseDefaultFiles()
 				.UseStaticFiles()
+				.Map("/Session", a => a.UseWebSockets().Use(Session.WebSocketHandlerAsync))
 				;
 		}
 	}
