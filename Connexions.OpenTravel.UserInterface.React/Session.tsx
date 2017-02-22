@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import Travel from "./Travel/Travel";
 
-class RootState {
+class SessionState {
 	SocketStatus: string;
 }
 
@@ -21,11 +21,11 @@ interface IAuthorizeResponse extends ICommandMessage {
 /** Contains a Session property for the session management services. */
 export interface ISessionProperty {
 	/** Provides user session services. */
-	Session: Root;
+	Session: Session;
 }
 
 /** The root React node, holds on to a WebSocket for the duration of the user's visit. */
-export default class Root extends React.Component<void, RootState> {
+export default class Session extends React.Component<void, SessionState> {
 	private socket: WebSocket;
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };

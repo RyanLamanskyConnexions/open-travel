@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
-import * as Root from "../../Root";
+import * as Session from "../../Session";
 
-export default class HotelSearch extends React.Component<Root.ISessionProperty, void> {
+export default class HotelSearch extends React.Component<Session.ISessionProperty, void> {
 	render() {
 		return (
 			<div>
