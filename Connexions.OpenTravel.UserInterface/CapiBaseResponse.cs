@@ -1,0 +1,47 @@
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Net;
+
+#pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
+
+namespace Connexions.OpenTravel.UserInterface
+{
+	class CapiBaseResponse : IHttpResponseHeaders
+	{
+		/// <summary>
+		/// Only populated when an error occurs, a pre-defined error code.
+		/// </summary>
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public string code { get; set; }
+
+		/// <summary>
+		/// Only populated when an error occurs, a human-readable message hopefully describing the problem.
+		/// </summary>
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public string message { get; set; }
+
+		public class Information
+		{
+			public string code { get; set; }
+			public string message { get; set; }
+		}
+
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public Information[] info { get; set; }
+
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public HttpStatusCode HttpStatusCode { get; set; }
+
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+		public IDictionary<string, string> Headers { get; set; }
+
+		/// <summary>
+		/// Clears logging informational fields so they're not returned to the client.
+		/// </summary>
+		public void SanitizeForClient()
+		{
+			this.HttpStatusCode = 0;
+			this.Headers = null;
+		}
+	}
+}

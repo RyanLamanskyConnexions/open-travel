@@ -1,4 +1,5 @@
 ﻿import * as React from "react";
+import Travel from "./Travel/Travel";
 
 class RootState {
 	SocketStatus: string;
@@ -10,6 +11,17 @@ interface ICommandMessage {
 	Sequence: number;
 	/** When true, no further messages to this command will be sent and it should no longer be tracked by the client. */
 	RanToCompletion: boolean;
+}
+
+interface IAuthorizeResponse extends ICommandMessage {
+	/** Returning a predetermined list airports as part of the authorization response is a placeholder until an autocomplete source is available. */
+	KnownAirports: any[];
+}
+
+/** Contains a Session property for the session management services. */
+export interface ISessionProperty {
+	/** Provides user session services. */
+	Session: Root;
 }
 
 /** The root React node, holds on to a WebSocket for the duration of the user's visit. */
@@ -26,30 +38,46 @@ export default class Root extends React.Component<void, RootState> {
 		this.activeCommands = {};
 	}
 
+	SetSocketStatus(message: string) {
+		this.setState({ SocketStatus: message })
+	}
+
+	SetSocketStatusActiveCommands() {
+		const activeCommands = Object.keys(this.activeCommands).length;
+		let message: string;
+		switch (activeCommands) {
+			case 0: message = "No active commands."; break;
+			case 1: message = "1 active command."; break;
+			default: message = activeCommands.toString() + " active commands."; break;
+		}
+		this.SetSocketStatus(message);
+	}
+
 	componentDidMount() {
 		this.socket = new WebSocket("ws" + (location.protocol === "https:" ? "s" : "") + "://" + location.host + "/Session");
 		const component = this;
 
 		this.socket.onopen = () => {
-			setSocketStatus("Connected");
+			component.SetSocketStatus("Connected.");
 			component.WebSocketCommand({
-				"$type": "Connexions.OpenTravel.UserInterface.Commands.Pulse, Connexions.OpenTravel.UserInterface",
+				"$type": "Connexions.OpenTravel.UserInterface.Commands.Authorize, Connexions.OpenTravel.UserInterface",
 			}, message => {
-				setSocketStatus(JSON.stringify(message));
+				var response = message as IAuthorizeResponse;
+				console.log(response.KnownAirports.length);
 			});
 		};
 
 		this.socket.onclose = () => {
-			setSocketStatus("Disconnected");
+			component.activeCommands = {};
+			//TODO: Attempt to reconnect if the component is still mounted.
+			component.SetSocketStatus("Disconnected");
 		};
 
 		this.socket.onerror = (evt) => {
-			setSocketStatus("Error: " + evt.message);
+			component.activeCommands = {};
+			//TODO: Attempt to reconnect if the component is still mounted.
+			component.SetSocketStatus("Error: " + evt.message);
 		};
-
-		function setSocketStatus(message: string) {
-			component.setState({ SocketStatus: message })
-		}
 
 		this.socket.onmessage = (ev) => {
 			const message = JSON.parse(ev.data) as ICommandMessage;
@@ -57,6 +85,7 @@ export default class Root extends React.Component<void, RootState> {
 			if (processor) {
 				if (message.RanToCompletion) {
 					delete component.activeCommands[message.Sequence];
+					component.SetSocketStatusActiveCommands();
 				}
 				processor(message);
 			}
@@ -79,6 +108,8 @@ export default class Root extends React.Component<void, RootState> {
 	WebSocketCommand(object: any, processor: (message: ICommandMessage) => void): number {
 		const commandNumber = ++this.commandNumber;
 		this.activeCommands[commandNumber] = processor;
+		this.SetSocketStatusActiveCommands();
+
 		object.Sequence = commandNumber;
 		this.socket.send(JSON.stringify(object));
 		return commandNumber;
@@ -88,7 +119,7 @@ export default class Root extends React.Component<void, RootState> {
 		return (
 			<div>
 				<h1>Connexions Open Travel</h1>
-				<p>Loading complete.</p>
+				<Travel Session={this} />
 				<p>Session Status: <span>{this.state.SocketStatus}</span></p>
 			</div >
 		);

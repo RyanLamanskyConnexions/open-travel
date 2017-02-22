@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -12,13 +13,31 @@ using static System.Diagnostics.Debug;
 
 namespace Connexions.OpenTravel.UserInterface
 {
+	/// <summary>
+	/// Maintains a web socket connection which represents a user's session.
+	/// </summary>
 	sealed class Session : IServiceProvider, IDisposable
 	{
+		#region Session Properties
+		/// <summary>
+		/// 2-character ISO code that indicates the traveler's nationality.
+		/// </summary>
+		public string Nationality { get; set; }
+
+		/// <summary>
+		/// 2-character ISO code that indicates the traveler's country of residence. 
+		/// </summary>
+		public string CountryOfResidence { get; set; }
+		#endregion
+
+		public T GetService<T>() => (T)this.GetService(typeof(T));
+
+		#region WebSocket Management
 		/// <summary>
 		/// Thread-safe when properties are not changed so reduce garbage collection pressure by re-using the same instance.
 		/// </summary>
 		private static readonly JsonSerializer jsonSerializer = new JsonSerializer { NullValueHandling = NullValueHandling.Ignore };
-		
+
 		/// <summary>
 		/// Thread-safe so reduce garbage collection pressure by re-using the same instance.
 		/// </summary>
@@ -34,13 +53,13 @@ namespace Connexions.OpenTravel.UserInterface
 		/// <summary>
 		/// Indicates that the session has been ended and any pending requests should be aborted.
 		/// </summary>
-		public readonly CancellationToken CancellationToken;
+		public CancellationToken CancellationToken { get; }
 
 		private readonly Func<Task<ArraySegment<Byte>>> receiveMessage;
 		private readonly Func<ArraySegment<Byte>, Task> sendMessage;
 		private Task listener = Task.CompletedTask;
 
-		private readonly ConcurrentDictionary<Task, Task> operations = new ConcurrentDictionary<Task, Task>();
+		private readonly ConcurrentDictionary<Task, Int64> operations = new ConcurrentDictionary<Task, Int64>();
 
 		private Session(IServiceProvider services, CancellationToken cancellationToken, Func<Task<ArraySegment<Byte>>> receiveMessage, Func<ArraySegment<Byte>, Task> sendMessage)
 		{
@@ -69,7 +88,7 @@ namespace Connexions.OpenTravel.UserInterface
 				);
 
 			var task = command.ExecuteAsync(this);
-			this.operations.TryAdd(task, task);
+			this.operations.TryAdd(task, command.Sequence);
 		}
 
 		/// <summary>
@@ -117,35 +136,51 @@ namespace Connexions.OpenTravel.UserInterface
 		/// </summary>
 		/// <returns>Active operations.</returns>
 		/// <remarks>The request listener is always the first item.</remarks>
-		public IEnumerable<Task> GetOperations()
+		private IEnumerable<Task> GetOperations()
 		{
 			if (listener.IsCompleted)
 				listener = Listen();
 
 			yield return listener;
 
-			foreach (var item in this.operations.Keys)
+			var failedOperations = new List<KeyValuePair<Task, long>>();
+
+			foreach (var kv in this.operations)
 			{
+				var item = kv.Key;
 				if (item.IsCompleted)
 				{
 					this.operations.TryRemove(item, out var unused);
+					Exception x = item.Exception;
+					if (x != null)
+					{
+						if (x is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
+						{
+							x = aggregate.InnerExceptions[0];
+						}
+						GetService<ILoggerFactory>().CreateLogger("WebSocket Operations").LogError(x.ToString());
+						failedOperations.Add(new KeyValuePair<Task, long>(this.SendAsync(new CommandMessage { Sequence = kv.Value, ErrorMessage = x.ToString(), RanToCompletion = true }), kv.Value));
+					}
 					continue;
 				}
 
 				yield return item;
 			}
+
+			foreach (var item in failedOperations)
+				this.operations.TryAdd(item.Key, item.Value);
 		}
 
 		#region IDisposable
 		/// <summary>
-		/// When true, a call to <see cref="Dispose"/> does nothing.
+		/// When true, a call to <see cref="IDisposable.Dispose"/> does nothing.
 		/// </summary>
 		private bool disposed;
 
 		/// <summary>
 		/// Releases unmanaged items associated with this instance.
 		/// </summary>
-		public void Dispose()
+		void IDisposable.Dispose()
 		{
 			if (disposed)
 				return;
@@ -192,5 +227,6 @@ namespace Connexions.OpenTravel.UserInterface
 				}
 			} //end using manager and cancellation token sources
 		}
+		#endregion
 	}
 }
