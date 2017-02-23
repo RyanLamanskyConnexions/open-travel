@@ -1,5 +1,7 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
+import * as HotelApi from "./Api";
+import Result from "./Result";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -13,7 +15,7 @@ interface IHotelSearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
 	SearchTime: number;
-	FirstPage: any;
+	FirstPage: HotelApi.ICapiSearchResultsResponse;
 }
 
 export default class HotelSearch extends React.Component<Session.ISessionProperty, IHotelSearchState> {
@@ -26,7 +28,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			SearchInProgress: false,
 			SearchResponse: HotelSearch.GetBlankSearchResponse(),
 			SearchTime: 0,
-			FirstPage: null,
+			FirstPage: {},
 		};
 	}
 
@@ -56,7 +58,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			SearchResponse: HotelSearch.GetBlankSearchResponse(),
 			SearchInProgress: true,
 			SearchTime: 0,
-			FirstPage: null,
+			FirstPage: {},
 		});
 
 		this.props.Session.WebSocketCommand({
@@ -110,6 +112,14 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 								: "No"
 						}{!!this.state.SearchResponse.FullResultsAvailable ? "; full results available." : ""}</dd>
 					</dl>
+				</div>
+				<div>
+					<h4>Results</h4>
+					{
+						!!this.state.FirstPage && !!this.state.FirstPage.hotels ?
+							this.state.FirstPage.hotels.map(hotel => <Result Session={this.props.Session} Hotel={hotel} />) :
+							<div></div>
+					}
 				</div>
 			</div>
 		);
