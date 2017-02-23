@@ -4,14 +4,16 @@ import * as Session from "../../Session";
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
 	HotelCount: number;
-	IsComplete: boolean;
-	CapiSearchResultsResponse: any;
+	FirstPageAvailable: boolean;
+	FirstPage: any;
+	FullResultsAvailable: boolean;
 }
 
 interface IHotelSearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
 	SearchTime: number;
+	FirstPage: any;
 }
 
 export default class HotelSearch extends React.Component<Session.ISessionProperty, IHotelSearchState> {
@@ -24,6 +26,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			SearchInProgress: false,
 			SearchResponse: HotelSearch.GetBlankSearchResponse(),
 			SearchTime: 0,
+			FirstPage: null,
 		};
 	}
 
@@ -31,8 +34,9 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 		return {
 			SessionId: "N/A",
 			HotelCount: 0,
-			IsComplete: false,
-			CapiSearchResultsResponse: {}
+			FirstPageAvailable: false,
+			FirstPage: {},
+			FullResultsAvailable: false,
 		} as ISearchResponse;
 	}
 
@@ -51,6 +55,8 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 		this.setState({
 			SearchResponse: HotelSearch.GetBlankSearchResponse(),
 			SearchInProgress: true,
+			SearchTime: 0,
+			FirstPage: null,
 		});
 
 		this.props.Session.WebSocketCommand({
@@ -63,12 +69,23 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			SearchRadiusInKilometers: 48.2803,
 			MinimumRating: 1,
 		}, message => {
-			this.setState(
-				{
-					SearchResponse: message as ISearchResponse,
-					SearchInProgress: !message.RanToCompletion,
-					SearchTime: message.RanToCompletion ? performance.now() - this.searchStarted : 0,
+			const response = message as ISearchResponse;
+			this.setState({
+				SearchResponse: response,
+				SearchInProgress: !message.RanToCompletion,
+			});
+
+			if (this.state.SearchTime === 0 && response.FirstPageAvailable) {
+				this.setState({
+					SearchTime: performance.now() - this.searchStarted,
 				});
+			}
+
+			if (!!response.FirstPage) {
+				this.setState({
+					FirstPage: response.FirstPage,
+				});
+			}
 		});
 	}
 
@@ -86,12 +103,12 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 						<dd>{this.state.SearchResponse.HotelCount.toString()}</dd>
 						<dt>Is Complete</dt>
 						<dd>{
-							this.state.SearchResponse.IsComplete ?
-								this.state.SearchResponse.RanToCompletion ?
-									`Yes, in ${(this.state.SearchTime / 1000).toFixed(3)} seconds `
+							this.state.SearchResponse.FirstPageAvailable ?
+								!!this.state.FirstPage ?
+									`Yes, in ${(this.state.SearchTime / 1000).toFixed(3)} seconds`
 									: "Almost..."
 								: "No"
-						}</dd>
+						}{!!this.state.SearchResponse.FullResultsAvailable ? "; full results available." : ""}</dd>
 					</dl>
 				</div>
 			</div>

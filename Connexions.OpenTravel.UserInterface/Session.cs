@@ -28,6 +28,20 @@ namespace Connexions.OpenTravel.UserInterface
 		/// 2-character ISO code that indicates the traveler's country of residence. 
 		/// </summary>
 		public string CountryOfResidence { get; set; }
+
+		/// <summary>
+		/// Retains arbitrary data for a user's session.
+		/// </summary>
+		private readonly ConcurrentDictionary<Type, object> data = new ConcurrentDictionary<Type, object>();
+
+		/// <summary>
+		/// Gets or adds an item from/to the session local memory data storage.
+		/// </summary>
+		/// <typeparam name="T">The type of item being retrieved or added.</typeparam>
+		/// <param name="key">Identifies the item to add.</param>
+		/// <param name="valueFactory">If the value does not currently exist, this is called to provide one to store.</param>
+		/// <returns>The stored item.</returns>
+		public T GetOrAdd<T>(Type key, Func<Type, T> valueFactory) => (T)this.data.GetOrAdd(key, type => valueFactory(type));
 		#endregion
 
 		public T GetService<T>() => (T)this.GetService(typeof(T));
