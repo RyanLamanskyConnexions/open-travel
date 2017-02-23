@@ -6,7 +6,7 @@ class SessionState {
 }
 
 /** Common features of all command response messages. */
-interface ICommandMessage {
+export interface ICommandMessage {
 	/** The sequence number of the command as tracked by the client. */
 	Sequence: number;
 	/** When true, no further messages to this command will be sent and it should no longer be tracked by the client. */
