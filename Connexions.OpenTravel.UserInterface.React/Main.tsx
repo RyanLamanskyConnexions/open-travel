@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
 import * as ReactDOM from "react-dom";
-import Root from "./Root";
+import Session from "./Session";
 
-ReactDOM.render(<Root />, document.getElementById("root"));
+ReactDOM.render(<Session />, document.getElementById("root"));

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -148,8 +149,9 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 		{
 			public string SessionId;
 			public int HotelCount;
-			public bool IsComplete;
-			public CapiSearchResultsResponse Results;
+			public bool FirstPageAvailable;
+			public CapiSearchResultsResponse FirstPage;
+			public bool FullResultsAvailable;
 		}
 
 		async Task ICommand.ExecuteAsync(Session session)
@@ -203,18 +205,21 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			do
 			{
 				await Task.Delay(250);
+				if (session.CancellationToken.IsCancellationRequested)
+					return;
 
 				statusResponse = await capi.PostAsync<CapiSearchStatusResponse>(
 					basePath + "status",
 					new { sessionId = initializationResponse.sessionId },
 					session.CancellationToken);
 
-				if (response.IsComplete = statusResponse.status == "Complete" || statusResponse.hotelCount != response.HotelCount)
+				//Only send an update if there's a change in status.
+				if (response.FirstPageAvailable = statusResponse.status == "Complete" || statusResponse.hotelCount != response.HotelCount)
 				{
 					response.HotelCount = statusResponse.hotelCount;
 					await session.SendAsync(response);
 				}
-			} while (session.CancellationToken.IsCancellationRequested == false && response.IsComplete == false);
+			} while (response.FirstPageAvailable == false);
 
 			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
 			{
@@ -232,15 +237,29 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 					pageSize = 10,
 					orderBy = "price asc",
 				},
-				filters = new
-				{
-					minHotelRating = this.MinimumRating,
-				},
 			}, session.CancellationToken);
 
 			page.SanitizeForClient();
 
-			response.Results = page;
+			response.FirstPage = page;
+			await session.SendAsync(response);
+			response.FirstPage = null; //Don't need to send this giant object again.
+
+			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
+			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
+			searchesBySession[initializationResponse.sessionId] = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
+			{
+				sessionId = initializationResponse.sessionId,
+				currency = this.Currency,
+				contentPrefs = new[]
+				{
+					"basic",
+					"images",
+					"amenities",
+				},
+			}, session.CancellationToken);
+
+			response.FullResultsAvailable = true;
 			response.RanToCompletion = true;
 			await session.SendAsync(response);
 		}
