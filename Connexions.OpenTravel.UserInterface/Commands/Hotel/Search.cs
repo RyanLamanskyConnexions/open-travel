@@ -165,7 +165,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 				},
 			}, session.CancellationToken);
 
-			page.SanitizeForClient();
+			page.PrepareForClient();
 
 			response.FirstPage = page;
 			await session.SendAsync(response);
@@ -173,7 +173,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 
 			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
-			searchesBySession[initializationResponse.sessionId] = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
+			var fullResults = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
 			{
 				sessionId = initializationResponse.sessionId,
 				currency = this.Currency,
@@ -184,6 +184,10 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 					"amenities",
 				},
 			}, session.CancellationToken);
+
+			fullResults.PrepareForClient();
+
+			searchesBySession[initializationResponse.sessionId] = fullResults;
 
 			response.FullResultsAvailable = true;
 			response.RanToCompletion = true;

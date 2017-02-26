@@ -41,3 +41,17 @@ The following is a list of the major technologies employed by this application.
 * C# 7.0
 * .NET Standard
 * .NET Core
+
+## Notable Issues
+
+There are some design or technical issues that should be resolved before this project can be considered "stable":
+
+* Dependency on `CoreCompat.System.Drawing` -
+This library provides emulation of the .NET Classic "System.Drawing" namespace.  It's the only .NET Core compatible image library that's close to production ready
+A strong candidate for replacement is [ImageSharp](https://github.com/JimBobSquarePants/ImageSharp), but the API is not yet stable enough for distribution via NuGet.
+* Missing Angular 2 WebUI Project -
+A React-based project is included but the popular Angular framework has no representation.
+Angular 2 could potentially leverage much of the TypeScript code already written for React.
+* No WebSocket Fallback -
+Although all modern browsers support WebSockets, some old proxy servers may break the feature.
+There currently isn't a mechanism in place to use an alternative connectivity approach if a WebSocket connection can't be established.

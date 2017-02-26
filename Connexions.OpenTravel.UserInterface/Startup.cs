@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Connexions.OpenTravel.UserInterface.Tests")]
+
 namespace Connexions.OpenTravel.UserInterface
 {
 	/// <summary>
@@ -13,10 +15,13 @@ namespace Connexions.OpenTravel.UserInterface
 		/// <summary>
 		/// This method gets called by the runtime. Use this method to add services to the container. 
 		/// </summary>
-		/// <remarks>For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940</remarks>
+		/// <remarks>For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940 .</remarks>
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton<ICapiClient, CapiClient>();
+			services
+				.AddMemoryCache()
+				.AddSingleton<ICapiClient, CapiClient>()
+				;
 		}
 
 		/// <summary>
@@ -33,6 +38,7 @@ namespace Connexions.OpenTravel.UserInterface
 				.UseDefaultFiles()
 				.UseStaticFiles()
 				.Map("/Session", a => a.UseWebSockets().Use(Session.WebSocketHandlerAsync))
+				.Map("/ImageProcessor/Resize", ImageProcessor.Resize.Configure)
 				;
 		}
 	}

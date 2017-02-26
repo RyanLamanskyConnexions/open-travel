@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+using System;
+using static System.Globalization.CultureInfo;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
 #pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
@@ -45,13 +46,15 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			{
 				public string url;
 				public string imageCaption;
-				public int height;
-				public int width;
+				public int? height;
+				public int? width;
 				public float horizontalResolution;
 				public float verticalResolution;
+
+				public override string ToString() => ((FormattableString)$"Image Caption {imageCaption ?? "(null)"} W: {width}, H: {height}").ToString(InvariantCulture);
 			}
 
-			public IEnumerable<Image> images;
+			public Image[] images;
 
 			public double rating;
 
@@ -81,5 +84,27 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public Paging paging;
+
+		/// <summary>
+		/// Removes logging info and organizes/trims data for delivery to a client web browser.
+		/// </summary>
+		public override void PrepareForClient()
+		{
+			base.PrepareForClient();
+
+			this.paging = null;
+
+			if (this.hotels != null)
+			{
+				for (var i = 0; i < this.hotels.Length; i++)
+				{
+					var hotel = this.hotels[i];
+					Array.Sort(hotel.images, ImageComparer.Compare);
+
+					if (hotel.images.Length > 20)
+						Array.Resize(ref hotel.images, 20);
+				}
+			}
+		}
 	}
 }
