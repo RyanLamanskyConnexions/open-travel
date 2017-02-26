@@ -79,14 +79,8 @@ export default class Session extends React.Component<void, ISessionState> {
 			component.SetSocketStatus("Disconnected");
 		};
 
-		this.socket.onerror = (evt) => {
-			component.activeCommands = {};
-			//TODO: Attempt to reconnect if the component is still mounted.
-			component.SetSocketStatus("Error: " + evt.message);
-		};
-
-		this.socket.onmessage = (ev) => {
-			const message = JSON.parse(ev.data) as ICommandMessage;
+		this.socket.onmessage = event => {
+			const message = JSON.parse(event.data) as ICommandMessage;
 			const processor = component.activeCommands[message.Sequence];
 			if (processor) {
 				if (message.RanToCompletion) {

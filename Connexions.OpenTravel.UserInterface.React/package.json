@@ -5,11 +5,11 @@
 	"devDependencies": {
 		"@types/react": "latest",
 		"@types/react-dom": "latest",
-		"gulp": "^3.9.1",
-		"gulp-clean": "^0.3.2",
-		"ts-loader": "^2.0.0",
-		"typescript": "^2.1.6",
-		"webpack": "^2.2.1",
-		"webpack-stream": "^3.2.0"
+		"gulp": "latest",
+		"gulp-clean": "latest",
+		"ts-loader": "latest",
+		"typescript": "latest",
+		"webpack": "latest",
+		"webpack-stream": "latest"
 	}
 }
