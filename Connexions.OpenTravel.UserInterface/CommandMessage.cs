@@ -2,8 +2,27 @@
 
 namespace Connexions.OpenTravel.UserInterface
 {
+	/// <summary>
+	/// Contains responses to request <see cref="Message"/>s.
+	/// </summary>
 	class CommandMessage : Message, ICommandMessage
 	{
+		/// <summary>
+		/// Creates a new <see cref="CommandMessage"/> instance.
+		/// </summary>
+		public CommandMessage()
+		{
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="CommandMessage"/> instance with the provided source data.
+		/// </summary>
+		/// <param name="message">The message containing information to carry into this response.</param>
+		public CommandMessage(Message message)
+		{
+			this.Sequence = message.Sequence;
+		}
+
 		/// <summary>
 		/// Indicates that the process has completed and the client should not expect any additional messages.
 		/// </summary>
