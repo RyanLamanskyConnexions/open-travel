@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,26 +40,6 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			public string sessionId;
 		}
 
-		/// <summary>
-		/// Hotel property and hotel room search have common properties.
-		/// </summary>
-		class CapiStatusResponse : CapiBaseResponse
-		{
-			/// <summary>
-			/// A value of "Complete" indicates completion, otherwise the search is still underway.
-			/// </summary>
-			public string status;
-
-			public class completedSupplier
-			{
-				public string id;
-				public string family;
-				public string name;
-			}
-
-			public IEnumerable<completedSupplier> completedSuppliers;
-		}
-
 		class CapiSearchStatusResponse : CapiStatusResponse
 		{
 			/// <summary>
@@ -74,7 +52,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 		class SearchResponse : CommandMessage
 		{
 			public string SessionId;
-			public int HotelCount;
+			public int Count;
 			public bool FirstPageAvailable;
 			public CapiSearchResultsResponse FirstPage;
 			public bool FullResultsAvailable;
@@ -140,9 +118,9 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 					session.CancellationToken);
 
 				//Only send an update if there's a change in status.
-				if (response.FirstPageAvailable = statusResponse.status == "Complete" || statusResponse.hotelCount != response.HotelCount)
+				if (response.FirstPageAvailable = statusResponse.status == "Complete" || statusResponse.hotelCount != response.Count)
 				{
-					response.HotelCount = statusResponse.hotelCount;
+					response.Count = statusResponse.hotelCount;
 					await session.SendAsync(response);
 				}
 			} while (response.FirstPageAvailable == false);
