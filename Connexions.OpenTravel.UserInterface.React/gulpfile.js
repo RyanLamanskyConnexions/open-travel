@@ -15,6 +15,6 @@ gulp.task("clean-temporary", () => gulp
 //
 gulp.task("webpack", ["clean-temporary"], () => gulp
 	.src("./App", { read: false }) //Read by webpack, only a placeholder here.
-	.pipe(webpack(require("./webpack.config.js")))
+	.pipe(webpack(require("./webpack.config.js"), require('webpack')))
 	.pipe(gulp.dest("./wwwroot/build/"))
 );

@@ -1,8 +1,9 @@
 ﻿import * as React from "react";
 import Travel from "./Travel/Travel";
 
-class SessionState {
+interface ISessionState {
 	SocketStatus: string;
+	KnownAirports: any[];
 }
 
 /** Common features of all command response messages. */
@@ -25,7 +26,7 @@ export interface ISessionProperty {
 }
 
 /** The root React node, holds on to a WebSocket for the duration of the user's visit. */
-export default class Session extends React.Component<void, SessionState> {
+export default class Session extends React.Component<void, ISessionState> {
 	private socket: WebSocket;
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
@@ -33,7 +34,10 @@ export default class Session extends React.Component<void, SessionState> {
 	constructor() {
 		super();
 
-		this.state = { SocketStatus: "None" };
+		this.state = {
+			SocketStatus: "None",
+			KnownAirports: [],
+		};
 		this.commandNumber = 0;
 		this.activeCommands = {};
 	}
@@ -62,8 +66,10 @@ export default class Session extends React.Component<void, SessionState> {
 			component.WebSocketCommand({
 				"$type": "Connexions.OpenTravel.UserInterface.Commands.Authorize, Connexions.OpenTravel.UserInterface",
 			}, message => {
-				var response = message as IAuthorizeResponse;
-				console.log(response.KnownAirports.length);
+				const response = message as IAuthorizeResponse;
+				this.setState({
+					KnownAirports: response.KnownAirports,
+				});
 			});
 		};
 
@@ -73,14 +79,8 @@ export default class Session extends React.Component<void, SessionState> {
 			component.SetSocketStatus("Disconnected");
 		};
 
-		this.socket.onerror = (evt) => {
-			component.activeCommands = {};
-			//TODO: Attempt to reconnect if the component is still mounted.
-			component.SetSocketStatus("Error: " + evt.message);
-		};
-
-		this.socket.onmessage = (ev) => {
-			const message = JSON.parse(ev.data) as ICommandMessage;
+		this.socket.onmessage = event => {
+			const message = JSON.parse(event.data) as ICommandMessage;
 			const processor = component.activeCommands[message.Sequence];
 			if (processor) {
 				if (message.RanToCompletion) {

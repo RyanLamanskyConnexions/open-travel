@@ -1,15 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
+#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
 
 namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 {
-#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
 	class Search : Message, ICommand
 	{
 		public string Currency;
@@ -42,26 +40,6 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			public string sessionId;
 		}
 
-		/// <summary>
-		/// Hotel property and hotel room search have common properties.
-		/// </summary>
-		class CapiStatusResponse : CapiBaseResponse
-		{
-			/// <summary>
-			/// A value of "Complete" indicates completion, otherwise the search is still underway.
-			/// </summary>
-			public string status;
-
-			public class completedSupplier
-			{
-				public string id;
-				public string family;
-				public string name;
-			}
-
-			public IEnumerable<completedSupplier> completedSuppliers;
-		}
-
 		class CapiSearchStatusResponse : CapiStatusResponse
 		{
 			/// <summary>
@@ -69,86 +47,12 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			/// </summary>
 			public int hotelCount;
 		}
-
-		class CapiSearchResultsResponse : CapiBaseResponse
-		{
-			public class Hotel
-			{
-				public string id;
-				public string name;
-
-				public class Contact
-				{
-					public class Address
-					{
-						public string line1;
-						public string line2;
-
-						public class CodeName
-						{
-							public string code;
-							public string name;
-						}
-
-						public CodeName city;
-						public CodeName state;
-
-						public string countryCode;
-						public string postalCode;
-					}
-
-					public Address address;
-				}
-
-				public Contact contact;
-
-				public class Image
-				{
-					public string url;
-					public string imageCaption;
-					public int height;
-					public int width;
-					public float horizontalResolution;
-					public float verticalResolution;
-				}
-
-				public IEnumerable<Image> images;
-
-				public double rating;
-
-				public class Fare
-				{
-					public string currency;
-					public decimal totalFare;
-				}
-
-				public Fare fare;
-
-				public class GeoCode
-				{
-					public double lat;
-					public double @long;
-				}
-
-				public GeoCode geoCode;
-			}
-
-			public Hotel[] hotels;
-
-			public class Paging
-			{
-				public int totalRecords;
-			}
-
-			[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-			public Paging paging;
-		}
 #pragma warning restore
 
 		class SearchResponse : CommandMessage
 		{
 			public string SessionId;
-			public int HotelCount;
+			public int Count;
 			public bool FirstPageAvailable;
 			public CapiSearchResultsResponse FirstPage;
 			public bool FullResultsAvailable;
@@ -214,9 +118,9 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 					session.CancellationToken);
 
 				//Only send an update if there's a change in status.
-				if (response.FirstPageAvailable = statusResponse.status == "Complete" || statusResponse.hotelCount != response.HotelCount)
+				if (response.FirstPageAvailable = statusResponse.status == "Complete" || statusResponse.hotelCount != response.Count)
 				{
-					response.HotelCount = statusResponse.hotelCount;
+					response.Count = statusResponse.hotelCount;
 					await session.SendAsync(response);
 				}
 			} while (response.FirstPageAvailable == false);
@@ -239,7 +143,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 				},
 			}, session.CancellationToken);
 
-			page.SanitizeForClient();
+			page.PrepareForClient();
 
 			response.FirstPage = page;
 			await session.SendAsync(response);
@@ -247,7 +151,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 
 			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
-			searchesBySession[initializationResponse.sessionId] = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
+			var fullResults = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
 			{
 				sessionId = initializationResponse.sessionId,
 				currency = this.Currency,
@@ -258,6 +162,10 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 					"amenities",
 				},
 			}, session.CancellationToken);
+
+			fullResults.PrepareForClient();
+
+			searchesBySession[initializationResponse.sessionId] = fullResults;
 
 			response.FullResultsAvailable = true;
 			response.RanToCompletion = true;

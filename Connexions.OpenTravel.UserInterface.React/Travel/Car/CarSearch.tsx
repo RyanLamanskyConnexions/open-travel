@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
-import * as HotelApi from "./Api";
+import * as CarApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../PageList";
@@ -9,23 +9,23 @@ interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
 	Count: number;
 	FirstPageAvailable: boolean;
-	FirstPage: HotelApi.ICapiSearchResultsResponse;
+	FirstPage: CarApi.ICapiSearchResultsResponse;
 	FullResultsAvailable: boolean;
 }
 
 interface ISearchResultViewResponse extends Session.ICommandMessage {
-	hotels: HotelApi.IHotel[];
+	cars: CarApi.ICar[];
 }
 
 interface ISearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
 	SearchTime: number;
-	View: HotelApi.ICapiSearchResultsResponse | ISearchResultViewResponse;
+	View: CarApi.ICapiSearchResultsResponse | ISearchResultViewResponse;
 	PageIndex: number;
 }
 
-export default class HotelSearch extends React.Component<Session.ISessionProperty, ISearchState> {
+export default class CarSearch extends React.Component<Session.ISessionProperty, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -33,7 +33,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 
 		this.state = {
 			SearchInProgress: false,
-			SearchResponse: HotelSearch.GetBlankSearchResponse(),
+			SearchResponse: CarSearch.GetBlankSearchResponse(),
 			SearchTime: 0,
 			View: {},
 			PageIndex: 0,
@@ -53,7 +53,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 	runSearch() {
 		this.searchStarted = performance.now();
 		this.setState({
-			SearchResponse: HotelSearch.GetBlankSearchResponse(),
+			SearchResponse: CarSearch.GetBlankSearchResponse(),
 			SearchInProgress: true,
 			SearchTime: 0,
 			View: {},
@@ -61,14 +61,12 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 		});
 
 		this.props.Session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Search, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.OpenTravel.UserInterface.Commands.Car.Search, Connexions.OpenTravel.UserInterface",
 			Currency: "USD",
-			Occupants: [{ Age: 25 }, { Age: 26 }],
-			CheckInDate: Api.CreateInitialDate(30),
-			CheckOutDate: Api.CreateInitialDate(32),
-			SearchOrigin: { Latitude: 36.08, Longitude: -115.152222 },
-			SearchRadiusInKilometers: 48.2803,
-			MinimumRating: 1,
+			Pickup: Api.CreateInitialDate(30) + "T18:30",
+			DropOff: Api.CreateInitialDate(32) + "T20:30",
+			PickupAirport: "LAS",
+			DropOffAirport: "LAS",
 		}, message => {
 			const response = message as ISearchResponse;
 			this.setState({
@@ -103,7 +101,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			});
 
 			this.props.Session.WebSocketCommand({
-				"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.SearchResultView, Connexions.OpenTravel.UserInterface",
+				"$type": "Connexions.OpenTravel.UserInterface.Commands.Car.SearchResultView, Connexions.OpenTravel.UserInterface",
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,
@@ -116,9 +114,10 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			});
 		};
 
+
 		return (
 			<div>
-				<h3>Hotel Search</h3>
+				<h3>Car Search</h3>
 				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>
 					<h4>Status</h4>
@@ -136,26 +135,26 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 								: "No"
 						}{!!this.state.SearchResponse.FullResultsAvailable ? "; full results available." : ""}</dd>
 					</dl>
-				</div>
-				<div>
-					<h4>Results</h4>
-					<PageList
-						Disabled={this.state.SearchInProgress}
-						PageCount={this.state.SearchResponse.Count / itemsPerPage}
-						PageIndex={this.state.PageIndex}
-						ChangePage={pageChange}
-					/>
-					{
-						!!this.state.View && !!this.state.View.hotels ?
-							this.state.View.hotels.map(hotel => <Result Session={this.props.Session} Hotel={hotel} key={hotel.id} />) :
-							<div></div>
-					}
-					<PageList
-						Disabled={this.state.SearchInProgress}
-						PageCount={this.state.SearchResponse.Count / itemsPerPage}
-						PageIndex={this.state.PageIndex}
-						ChangePage={pageChange}
-					/>
+					<div>
+						<h4>Results</h4>
+						<PageList
+							Disabled={this.state.SearchInProgress}
+							PageCount={this.state.SearchResponse.Count / itemsPerPage}
+							PageIndex={this.state.PageIndex}
+							ChangePage={pageChange}
+						/>
+						{
+							!!this.state.View && !!this.state.View.cars ?
+								this.state.View.cars.map(car => <Result Session={this.props.Session} Car={car} key={car.id} />) :
+								<div></div>
+						}
+						<PageList
+							Disabled={this.state.SearchInProgress}
+							PageCount={this.state.SearchResponse.Count / itemsPerPage}
+							PageIndex={this.state.PageIndex}
+							ChangePage={pageChange}
+						/>
+					</div>
 				</div>
 			</div>
 		);

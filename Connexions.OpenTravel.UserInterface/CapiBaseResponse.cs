@@ -36,9 +36,9 @@ namespace Connexions.OpenTravel.UserInterface
 		public IDictionary<string, string> Headers { get; set; }
 
 		/// <summary>
-		/// Clears logging informational fields so they're not returned to the client.
+		/// Removes logging info and organizes/trims data for delivery to a client web browser.
 		/// </summary>
-		public void SanitizeForClient()
+		public virtual void PrepareForClient()
 		{
 			this.HttpStatusCode = 0;
 			this.Headers = null;

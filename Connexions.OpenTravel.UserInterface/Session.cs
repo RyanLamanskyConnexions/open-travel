@@ -41,7 +41,20 @@ namespace Connexions.OpenTravel.UserInterface
 		/// <param name="key">Identifies the item to add.</param>
 		/// <param name="valueFactory">If the value does not currently exist, this is called to provide one to store.</param>
 		/// <returns>The stored item.</returns>
-		public T GetOrAdd<T>(Type key, Func<Type, T> valueFactory) => (T)this.data.GetOrAdd(key, type => valueFactory(type));
+		public T GetOrAdd<T>(Type key, Func<Type, T> valueFactory)
+			where T : class
+			=> (T)this.data.GetOrAdd(key, type => valueFactory(type));
+
+		/// <summary>
+		/// Gets an item from the session local memory data storage.
+		/// </summary>
+		/// <typeparam name="T">The type of item being retrieved.</typeparam>
+		/// <param name="key">Identifies the item to get.</param>
+		/// <param name="value">Receives the value, or null if not found.</param>
+		/// <returns>Trye if the item was found, otherwise false.</returns>
+		public bool TryGet<T>(Type key, out T value)
+			where T : class
+			=> this.data.TryGetValue(key, out var raw) & (value = raw as T) != null;
 		#endregion
 
 		public T GetService<T>() => (T)this.GetService(typeof(T));
