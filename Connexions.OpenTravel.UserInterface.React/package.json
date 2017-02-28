@@ -7,6 +7,8 @@
 		"@types/react-dom": "latest",
 		"gulp": "latest",
 		"gulp-clean": "latest",
+		"gulp-sass": "latest",
+		"gulp-sourcemaps": "latest",
 		"ts-loader": "latest",
 		"typescript": "latest",
 		"webpack": "latest",
