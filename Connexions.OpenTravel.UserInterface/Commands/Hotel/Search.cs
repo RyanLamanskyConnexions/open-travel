@@ -32,14 +32,6 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 
 		public int MinimumRating;
 
-		class CapiSearchInitResponse : CapiBaseResponse
-		{
-			/// <summary>
-			/// Oski "sessionId" representing the hotel search.
-			/// </summary>
-			public string sessionId;
-		}
-
 		class CapiSearchStatusResponse : CapiStatusResponse
 		{
 			/// <summary>
