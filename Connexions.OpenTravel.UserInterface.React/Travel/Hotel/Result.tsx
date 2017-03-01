@@ -1,12 +1,57 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
+import * as Api from "../Api";
 
 interface IResult extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
 }
 
-export default class Result extends React.Component<IResult, void> {
+interface IResultState {
+	RoomSearchInProgress: boolean;
+	Rooms: HotelApi.ICapiRoomSearchResultsResponse | null;
+}
+
+interface IRoomSearchResponse extends Session.ICommandMessage {
+	SessionId: string;
+	Count: number;
+	FullResultsAvailable: boolean;
+	Results: HotelApi.ICapiRoomSearchResultsResponse;
+}
+
+export default class Result extends React.Component<IResult, IResultState> {
+	constructor() {
+		super();
+
+		this.state = {
+			RoomSearchInProgress: false,
+			Rooms: null,
+		};
+	}
+
+	private GetRooms() {
+		this.setState({
+			RoomSearchInProgress: true,
+		});
+
+		this.props.Session.WebSocketCommand({
+			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Rooms, Connexions.OpenTravel.UserInterface",
+			Currency: "USD",
+			Occupants: [{ Age: 25 }, { Age: 26 }],
+			CheckInDate: Api.CreateInitialDate(30),
+			CheckOutDate: Api.CreateInitialDate(32),
+			HotelId: this.props.Hotel.id,
+		}, message => {
+			var response = message as IRoomSearchResponse;
+			if (response.RanToCompletion) {
+				this.setState({
+					RoomSearchInProgress: false,
+					Rooms: response.Results,
+				});
+			}
+		});
+	}
+
 	render() {
 		const hotel = this.props.Hotel;
 
@@ -49,6 +94,14 @@ export default class Result extends React.Component<IResult, void> {
 				<span>{stars} {hotel.name}</span>
 				<div><a href={mapUrl} target="_blank" rel="noopener noreferrer nofollow">{geocode}</a>; ID# {hotel.id}</div>
 				<div>Total: <strong>${hotel.fare.totalFare.toFixed(2)}</strong> {hotel.fare.currency}</div>
+				<div>
+					<button onClick={() => this.GetRooms()} disabled={this.state.RoomSearchInProgress}>Show Rooms</button>
+				</div>
+				{
+					!!this.state.Rooms && !!this.state.Rooms.rooms ?
+						this.state.Rooms.rooms.map(room => <div key={room.refId}>{room.name}</div>) :
+						<div></div>
+				}
 			</div>
 		);
 	}
