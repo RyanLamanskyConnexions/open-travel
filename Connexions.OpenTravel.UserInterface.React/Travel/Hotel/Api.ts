@@ -1,24 +1,5 @@
 ﻿import * as TravelApi from "../Api";
-
-export interface IParsed {
-	IsUnsafe?: boolean;
-}
-
-export interface ITextElement extends IParsed {
-	Content?: string;
-}
-
-export interface IElement extends IParsed {
-	Name?: string;
-	Children?: IParsed[];
-	Attributes?: IAttribute[];
-}
-
-export interface IAttribute {
-	IsUnsafe?: boolean;
-	Name?: string;
-	Value?: string;
-}
+import { IParsed } from "../../ParsedToReact";
 
 export interface ICapiSearchResultsResponse extends TravelApi.ICapiBaseResponse {
 	hotels?: IHotel[];
@@ -72,7 +53,7 @@ export interface ICapiRoomSearchResultsResponse extends TravelApi.ICapiBaseRespo
 	recommendations: IRecommendation[];
 }
 
-interface IRoom {
+export interface IRoom {
 	refId: string;
 	name: string;
 	type: string;
@@ -83,45 +64,45 @@ interface IRoom {
 	SanitizedDescription: IParsed[];
 }
 
-interface IPolicy {
+export interface IPolicy {
 	type: string;
 	text: string;
 }
 
-interface IBoardBasis {
+export interface IBoardBasis {
 	desc: string;
 	type: string;
 }
 
-interface ITaxes {
+export interface ITaxes {
 	code: string;
 	desc: string;
 	amount: number;
 }
 
-interface IFees {
+export interface IFees {
 	desc: string;
 	amount: number;
 }
 
-interface IRateOccupancies {
+export interface IRateOccupancies {
 	roomRefId: string;
 	occupancyRefId: string;
 }
 
-interface IFareBreakup {
+export interface IFareBreakup {
 	baseFare: number;
 	currency: string;
 	totalFare: number;
 }
 
-interface IRecommendation {
+export interface IRecommendation {
 	fareBreakup: IFareBreakup;
 	id: string;
 	rateRefIds: string[];
 }
 
-interface IRate {
+export interface IRate {
 	refId: string;
 	desc: string;
 	isPrepaid: boolean;

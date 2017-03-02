@@ -2,6 +2,7 @@
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
 import * as Api from "../Api";
+import Room from "./Room";
 
 interface IResult extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
@@ -19,6 +20,7 @@ interface IRoomSearchResponse extends Session.ICommandMessage {
 	Results: HotelApi.ICapiRoomSearchResultsResponse;
 }
 
+/** Shows the details for a single hotel. */
 export default class Result extends React.Component<IResult, IResultState> {
 	constructor() {
 		super();
@@ -99,7 +101,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 				</div>
 				{
 					!!this.state.Rooms && !!this.state.Rooms.rooms ?
-						this.state.Rooms.rooms.map(room => <div key={room.refId}>{room.name}</div>) :
+						this.state.Rooms.rooms.map(room => <Room key={room.refId} Session={this.props.Session} Room={room} />) :
 						<div></div>
 				}
 			</div>
