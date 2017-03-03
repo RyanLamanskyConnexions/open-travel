@@ -22,3 +22,7 @@ export function CreateInitialDate(daysToAdd: number): string {
 	date.setDate(date.getDate() + daysToAdd);
 	return date.getFullYear() + "-" + Pad((date.getMonth() + 1), 2) + "-" + Pad(date.getDate(), 2);
 }
+
+export interface IStringDictionary<T> {
+	[index: string]: T;
+}

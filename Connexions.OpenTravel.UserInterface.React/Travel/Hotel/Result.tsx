@@ -11,6 +11,7 @@ interface IResult extends Session.ISessionProperty {
 interface IResultState {
 	RoomSearchInProgress: boolean;
 	Rooms: HotelApi.ICapiRoomSearchResultsResponse | null;
+	RatesByRefId: Api.IStringDictionary<HotelApi.IRate>;
 }
 
 interface IRoomSearchResponse extends Session.ICommandMessage {
@@ -28,6 +29,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 		this.state = {
 			RoomSearchInProgress: false,
 			Rooms: null,
+			RatesByRefId: {},
 		};
 	}
 
@@ -44,11 +46,19 @@ export default class Result extends React.Component<IResult, IResultState> {
 			CheckOutDate: Api.CreateInitialDate(32),
 			HotelId: this.props.Hotel.id,
 		}, message => {
-			var response = message as IRoomSearchResponse;
+			const response = message as IRoomSearchResponse;
 			if (response.RanToCompletion) {
+				const ratesByRefId: Api.IStringDictionary<HotelApi.IRate> = {};
+				for (const rate of response.Results.rates) {
+					for (const rateOccupancy of rate.rateOccupancies) {
+						ratesByRefId[rateOccupancy.roomRefId] = rate;
+					}
+				}
+
 				this.setState({
 					RoomSearchInProgress: false,
 					Rooms: response.Results,
+					RatesByRefId: ratesByRefId,
 				});
 			}
 		});
@@ -101,7 +111,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 				</div>
 				{
 					!!this.state.Rooms && !!this.state.Rooms.rooms ?
-						this.state.Rooms.rooms.map(room => <Room key={room.refId} Session={this.props.Session} Room={room} />) :
+						this.state.Rooms.rooms.map(room => <Room key={room.refId} Session={this.props.Session} Room={room} RatesByRefId={this.state.RatesByRefId}/>) :
 						<div></div>
 				}
 			</div>
