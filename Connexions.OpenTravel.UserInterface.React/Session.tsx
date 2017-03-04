@@ -1,10 +1,17 @@
 ﻿import * as React from "react";
 import Travel from "./Travel/Travel";
 import ShoppingCart from "./Commerce/ShoppingCart"
+import Checkout from "./Commerce/Checkout"
+
+export const enum View {
+	Main,
+	Checkout
+}
 
 interface ISessionState {
 	SocketStatus: string;
 	KnownAirports: any[];
+	View: View;
 }
 
 /** Common features of all command response messages. */
@@ -39,6 +46,7 @@ export default class Session extends React.Component<void, ISessionState> {
 		this.state = {
 			SocketStatus: "None",
 			KnownAirports: [],
+			View: View.Main,
 		};
 		this.commandNumber = 0;
 		this.activeCommands = {};
@@ -121,8 +129,18 @@ export default class Session extends React.Component<void, ISessionState> {
 		return (
 			<div>
 				<h1>Connexions Open Travel</h1>
-				<ShoppingCart ref={ref => this.Cart = ref} />
-				<Travel Session={this} />
+				<ShoppingCart
+					ref={ref => this.Cart = ref}
+					Session={this}
+				/>
+				<Travel
+					Session={this}
+					Show={this.state.View === View.Main}
+				/>
+				<Checkout
+					Session={this}
+					Show={this.state.View === View.Checkout}
+				/>
 				<p>Session Status: <span>{this.state.SocketStatus}</span></p>
 			</div >
 		);

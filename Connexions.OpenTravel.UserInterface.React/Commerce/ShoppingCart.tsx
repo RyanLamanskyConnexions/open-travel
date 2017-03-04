@@ -1,6 +1,7 @@
 ﻿import PopUp from "../Common/PopUp";
 import * as React from "react";
 import * as Objects from "../Common/Objects";
+import * as Session from "../Session";
 
 export interface IPurchasable {
 	Identity: string;
@@ -23,7 +24,7 @@ export const enum Refundability {
 	Refund = 2,
 }
 
-interface IShoppingCartProperties {
+interface IShoppingCartProperties extends Session.ISessionProperty {
 }
 
 interface IShoppingCartState {
@@ -65,6 +66,11 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 	}
 
 	protected PopUpClose() {
+		this.setState({ ShowCartDialog: false });
+	}
+
+	private NavigateToCheckout() {
+		this.props.Session.setState({ View: Session.View.Checkout });
 		this.setState({ ShowCartDialog: false });
 	}
 
@@ -117,7 +123,10 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 						})
 					}
 					<button onClick={() => this.PopUpClose()}>Continue Shopping</button>
-					<button disabled>Check Out</button>
+					<button
+						disabled={items.length === 0}
+						onClick={() => this.NavigateToCheckout()}
+					>Check Out</button>
 				</PopUp>
 			</div>
 		);
