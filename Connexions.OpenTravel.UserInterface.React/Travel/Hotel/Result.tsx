@@ -2,6 +2,7 @@
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
 import * as Api from "../Api";
+import * as Common from "../../Common/Objects";
 import Room from "./Room";
 
 interface IResult extends Session.ISessionProperty {
@@ -11,7 +12,7 @@ interface IResult extends Session.ISessionProperty {
 interface IResultState {
 	RoomSearchInProgress: boolean;
 	Rooms: HotelApi.ICapiRoomSearchResultsResponse | null;
-	RatesByRefId: Api.IStringDictionary<HotelApi.IRate>;
+	RatesByRefId: Common.IStringDictionary<HotelApi.IRate>;
 }
 
 interface IRoomSearchResponse extends Session.ICommandMessage {
@@ -48,7 +49,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 		}, message => {
 			const response = message as IRoomSearchResponse;
 			if (response.RanToCompletion) {
-				const ratesByRefId: Api.IStringDictionary<HotelApi.IRate> = {};
+				const ratesByRefId: Common.IStringDictionary<HotelApi.IRate> = {};
 				for (const rate of response.Results.rates) {
 					for (const rateOccupancy of rate.rateOccupancies) {
 						ratesByRefId[rateOccupancy.roomRefId] = rate;
@@ -109,16 +110,18 @@ export default class Result extends React.Component<IResult, IResultState> {
 				<div>
 					<button onClick={() => this.GetRooms()} disabled={this.state.RoomSearchInProgress}>Show Rooms</button>
 				</div>
-				{
-					!!this.state.Rooms && !!this.state.Rooms.rooms ?
-						this.state.Rooms.rooms.map(room => <Room
-							key={room.refId}
-							Session={this.props.Session}
-							Room={room}
-							Hotel={hotel}
-							RatesByRefId={this.state.RatesByRefId} />) :
-						<div></div>
-				}
+				<ul className="Rooms">
+					{
+						!!this.state.Rooms && !!this.state.Rooms.rooms ?
+							this.state.Rooms.rooms.map(room => <Room
+								key={room.refId}
+								Session={this.props.Session}
+								Room={room}
+								Hotel={hotel}
+								RatesByRefId={this.state.RatesByRefId} />) :
+							null
+					}
+				</ul>
 			</div>
 		);
 	}

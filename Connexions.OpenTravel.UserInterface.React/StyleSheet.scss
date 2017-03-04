@@ -4,6 +4,15 @@
 	background: white;
 }
 
+caption {
+	text-align: left;
+	font-weight: bold;
+}
+
+figure{
+	margin: 0;
+}
+
 //Used by PageList.tsx
 ol.PageList {
 	list-style-type: none;
@@ -121,3 +130,21 @@ ol.PageList {
 	opacity: 1;
 }
 //End of PopUp.tsx
+
+table.CartItems {
+	width: 100%;
+}
+
+ul.Rooms {
+	list-style-type: none;
+}
+
+figure.Thumbnail {
+	$ThumbnailLength: 170px;
+
+	width: $ThumbnailLength;
+	max-width: $ThumbnailLength;
+	height: $ThumbnailLength;
+	max-height: $ThumbnailLength;
+	background: rgba(0, 0, 0, 0.7)
+}

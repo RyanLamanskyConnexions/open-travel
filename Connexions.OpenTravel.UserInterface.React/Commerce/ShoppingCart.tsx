@@ -1,8 +1,12 @@
 ﻿import PopUp from "../Common/PopUp";
 import * as React from "react";
+import * as Objects from "../Common/Objects";
 
 export interface IPurchasable {
+	Identity: string;
 	Name: string;
+	Price: number;
+	Category: string;
 	Refundability?: Refundability;
 	Status?: Status;
 }
@@ -66,23 +70,52 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 
 	render(): JSX.Element {
 		let viewCart: string;
-		if (this.state.Items.length != 0)
-			viewCart = `View Cart (${this.state.Items.length})`
+		const items = this.state.Items;
+
+		if (items.length != 0)
+			viewCart = `View Cart (${items.length})`
 		else
 			viewCart = "Cart is Empty";
 
+		const categories: Objects.IStringDictionary<IPurchasable[] | undefined> = {};
+		for (const item of items) {
+			let array = categories[item.Category];
+			if (array === undefined)
+				categories[item.Category] = array = [];
+
+			array.push(item);
+		}
+
 		return (
 			<div>
-				<button className="Cart" disabled={this.state.Items.length === 0} onClick={() => this.setState({ ShowCartDialog: true })}>{viewCart}</button>
+				<button className="Cart" disabled={items.length === 0} onClick={() => this.setState({ ShowCartDialog: true })}>{viewCart}</button>
 				<PopUp Title="Shopping Cart" Show={this.state.ShowCartDialog} OnClose={() => this.PopUpClose()}>
-					<p>Items in Cart:</p>
-					<ul>
-						{this.state.Items.map(item => {
+					{
+						Object.keys(categories).map(category => {
+							const categoryItems = categories[category];
+							if (!categoryItems)
+								return null; //This shouldn't happen but enforces that categoryItems is valid.
+
 							return (
-								<li>{item.Name} <button onClick={() => this.Remove(item)}>Remove</button></li>
+								<table className="CartItems" key={category}>
+									<caption>{category}</caption>
+									<tbody>
+										{categoryItems.map(item => {
+											return (
+												<tr key={`${category} ${item.Identity}`}>
+													<td>{item.Name}</td>
+													<td>${item.Price.toFixed(2)}</td>
+													<td>
+														<button onClick={() => this.Remove(item)}>Remove</button>
+													</td>
+												</tr>
+											);
+										})}
+									</tbody>
+								</table>
 							);
-						})}
-					</ul>
+						})
+					}
 					<button onClick={() => this.PopUpClose()}>Continue Shopping</button>
 					<button disabled>Check Out</button>
 				</PopUp>
