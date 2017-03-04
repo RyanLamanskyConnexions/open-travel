@@ -22,4 +22,102 @@ ol.PageList {
 			margin: 2px;
 		}
 	}
-} //end ol.PageList
+}
+//end ol.PageList
+
+//Used by PopUp.tsx
+.PopUp {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0, 0, 0, 0.7);
+	transition: all 500ms;
+	visibility: hidden;
+	opacity: 0;
+
+	.Dialog {
+		margin: 70px auto;
+		padding: 20px;
+		background: #fff;
+		border-radius: 5px;
+		width: 85%;
+		max-width: 1000px;
+		position: relative;
+
+		h2 {
+			margin-top: 0;
+			color: #333;
+		}
+
+		.Close {
+			min-width: inherit;
+			padding: 0;
+			position: absolute;
+			top: 20px;
+			right: 30px;
+			transition: all 200ms;
+			font-size: 30px;
+			font-weight: bold;
+			text-decoration: none;
+			border: 0;
+			background: inherit;
+			color: black;
+		}
+
+		.Close:hover {
+			color: darkgray;
+		}
+
+		.Content {
+			max-height: 30%;
+			overflow: auto;
+		}
+	}
+
+	.Dialog {
+		margin: 70px auto;
+		padding: 20px;
+		background: #fff;
+		border-radius: 5px;
+		width: 85%;
+		max-width: 1000px;
+		position: relative;
+
+		h2 {
+			margin-top: 0;
+			color: #333;
+		}
+
+		.Close {
+			min-width: inherit;
+			padding: 0;
+			position: absolute;
+			top: 20px;
+			right: 30px;
+			transition: all 200ms;
+			font-size: 30px;
+			font-weight: bold;
+			text-decoration: none;
+			border: 0;
+			background: inherit;
+			color: black;
+		}
+
+		.Close:hover {
+			color: darkgray;
+		}
+
+		.Content {
+			max-height: 30%;
+			overflow: auto;
+		}
+	}
+}
+
+.PopUp.Show {
+	visibility: visible;
+	opacity: 1;
+}
+//End of PopUp.tsx

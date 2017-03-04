@@ -111,7 +111,12 @@ export default class Result extends React.Component<IResult, IResultState> {
 				</div>
 				{
 					!!this.state.Rooms && !!this.state.Rooms.rooms ?
-						this.state.Rooms.rooms.map(room => <Room key={room.refId} Session={this.props.Session} Room={room} RatesByRefId={this.state.RatesByRefId}/>) :
+						this.state.Rooms.rooms.map(room => <Room
+							key={room.refId}
+							Session={this.props.Session}
+							Room={room}
+							Hotel={hotel}
+							RatesByRefId={this.state.RatesByRefId} />) :
 						<div></div>
 				}
 			</div>
