@@ -3,7 +3,7 @@ import * as Session from "../../Session";
 import * as CarApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
-import PageList from "../../PageList";
+import PageList from "../../Common/PageList";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;

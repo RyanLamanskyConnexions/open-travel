@@ -1,5 +1,6 @@
 ﻿import * as React from "react";
 import Travel from "./Travel/Travel";
+import ShoppingCart from "./Commerce/ShoppingCart"
 
 interface ISessionState {
 	SocketStatus: string;
@@ -30,6 +31,7 @@ export default class Session extends React.Component<void, ISessionState> {
 	private socket: WebSocket;
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
+	public Cart: ShoppingCart;
 
 	constructor() {
 		super();
@@ -119,6 +121,7 @@ export default class Session extends React.Component<void, ISessionState> {
 		return (
 			<div>
 				<h1>Connexions Open Travel</h1>
+				<ShoppingCart ref={ref => this.Cart = ref} />
 				<Travel Session={this} />
 				<p>Session Status: <span>{this.state.SocketStatus}</span></p>
 			</div >

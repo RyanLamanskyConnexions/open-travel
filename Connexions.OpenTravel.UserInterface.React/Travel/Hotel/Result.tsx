@@ -2,6 +2,8 @@
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
 import * as Api from "../Api";
+import * as Common from "../../Common/Objects";
+import Room from "./Room";
 
 interface IResult extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
@@ -10,6 +12,7 @@ interface IResult extends Session.ISessionProperty {
 interface IResultState {
 	RoomSearchInProgress: boolean;
 	Rooms: HotelApi.ICapiRoomSearchResultsResponse | null;
+	RatesByRefId: Common.IStringDictionary<HotelApi.IRate>;
 }
 
 interface IRoomSearchResponse extends Session.ICommandMessage {
@@ -19,6 +22,7 @@ interface IRoomSearchResponse extends Session.ICommandMessage {
 	Results: HotelApi.ICapiRoomSearchResultsResponse;
 }
 
+/** Shows the details for a single hotel. */
 export default class Result extends React.Component<IResult, IResultState> {
 	constructor() {
 		super();
@@ -26,6 +30,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 		this.state = {
 			RoomSearchInProgress: false,
 			Rooms: null,
+			RatesByRefId: {},
 		};
 	}
 
@@ -42,11 +47,19 @@ export default class Result extends React.Component<IResult, IResultState> {
 			CheckOutDate: Api.CreateInitialDate(32),
 			HotelId: this.props.Hotel.id,
 		}, message => {
-			var response = message as IRoomSearchResponse;
+			const response = message as IRoomSearchResponse;
 			if (response.RanToCompletion) {
+				const ratesByRefId: Common.IStringDictionary<HotelApi.IRate> = {};
+				for (const rate of response.Results.rates) {
+					for (const rateOccupancy of rate.rateOccupancies) {
+						ratesByRefId[rateOccupancy.roomRefId] = rate;
+					}
+				}
+
 				this.setState({
 					RoomSearchInProgress: false,
 					Rooms: response.Results,
+					RatesByRefId: ratesByRefId,
 				});
 			}
 		});
@@ -97,11 +110,18 @@ export default class Result extends React.Component<IResult, IResultState> {
 				<div>
 					<button onClick={() => this.GetRooms()} disabled={this.state.RoomSearchInProgress}>Show Rooms</button>
 				</div>
-				{
-					!!this.state.Rooms && !!this.state.Rooms.rooms ?
-						this.state.Rooms.rooms.map(room => <div key={room.refId}>{room.name}</div>) :
-						<div></div>
-				}
+				<ul className="Rooms">
+					{
+						!!this.state.Rooms && !!this.state.Rooms.rooms ?
+							this.state.Rooms.rooms.map(room => <Room
+								key={room.refId}
+								Session={this.props.Session}
+								Room={room}
+								Hotel={hotel}
+								RatesByRefId={this.state.RatesByRefId} />) :
+							null
+					}
+				</ul>
 			</div>
 		);
 	}

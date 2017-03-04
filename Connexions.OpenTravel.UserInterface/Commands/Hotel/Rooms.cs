@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
@@ -31,6 +30,7 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 				public string roomTypeCode;
 				public string smokingIndicator;
 
+				[JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
 				public Html.Parsed[] SanitizedDescription;
 			}
 
