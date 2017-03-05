@@ -4,11 +4,11 @@ import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import * as Common from "../../Common/Objects";
 import Room from "./Room";
-import * as Cart from "../../Commerce/ShoppingCart"
+import * as Hotel from "./HotelSearch"
 
 interface IResult extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
-	Category: Cart.ICategory;
+	Category: Hotel.HotelCategory;
 }
 
 interface IRecommendedRoom {

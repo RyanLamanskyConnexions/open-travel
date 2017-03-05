@@ -1,10 +1,11 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
+import SessionTemplate from "../../Session";
 import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
-import * as Cart from "../../Commerce/ShoppingCart"
+import * as Category from "../../Commerce/Category"
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -18,6 +19,10 @@ interface ISearchResultViewResponse extends Session.ICommandMessage {
 	hotels: HotelApi.IHotel[];
 }
 
+interface IProperties extends Session.ISessionProperty {
+	Category: HotelCategory;
+}
+
 interface ISearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
@@ -26,9 +31,14 @@ interface ISearchState {
 	PageIndex: number;
 }
 
-export default class HotelSearch extends React.Component<Session.ISessionProperty, ISearchState> {
+export class HotelCategory extends Category.Category<any> {
+	constructor(session: SessionTemplate) {
+		super(session, "Hotel");
+	}
+}
+
+export default class HotelSearch extends React.Component<IProperties, ISearchState> {
 	private searchStarted: number;
-	private category: Cart.ICategory;
 
 	constructor() {
 		super();
@@ -40,10 +50,6 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			View: {},
 			PageIndex: 0,
 		};
-
-		this.category = {
-			Name: "Hotel",
-		}
 	}
 
 	private static GetBlankSearchResponse(): ISearchResponse {
@@ -156,7 +162,7 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 							this.state.View.hotels.map(hotel =>
 								<Result
 									Session={this.props.Session}
-									Category={this.category}
+									Category={this.props.Category}
 									Hotel={hotel}
 									key={hotel.id
 									} />) :

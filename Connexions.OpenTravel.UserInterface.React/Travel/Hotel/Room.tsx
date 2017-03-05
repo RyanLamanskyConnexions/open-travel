@@ -2,7 +2,7 @@
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
 import { Convert } from "../../ParsedToReact";
-import * as Cart from "../../Commerce/ShoppingCart"
+import * as Hotel from "./HotelSearch";
 
 interface IRoomProperties extends Session.ISessionProperty {
 	RecommendationId: string;
@@ -10,7 +10,7 @@ interface IRoomProperties extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
 	Room: HotelApi.IRoom;
 	Rate: HotelApi.IRate;
-	Category: Cart.ICategory;
+	Category: Hotel.HotelCategory;
 }
 
 export default class Room extends React.Component<IRoomProperties, void> {
@@ -22,7 +22,7 @@ export default class Room extends React.Component<IRoomProperties, void> {
 			<li key={room.refId}>
 				<h4>{room.name}: ${price.toFixed(2)}</h4>
 				<div>{Convert(room.SanitizedDescription)}</div>
-				<button onClick={() => this.props.Session.Cart.Add({
+				<button onClick={() => this.props.Category.Add({
 					Identity: {
 						SessionId: this.props.SessionId,
 						HotelId: this.props.Hotel.id,

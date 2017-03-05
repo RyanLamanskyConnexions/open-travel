@@ -1,40 +1,15 @@
 ﻿import PopUp from "../Common/PopUp";
 import * as React from "react";
-import * as Objects from "../Common/Objects";
 import * as Session from "../Session";
-
-export interface ICategory {
-	Name: string;
-}
-
-export interface IPurchasable {
-	/** A value that can uniquely identify the purchasable item within its associated system. */
-	Identity: any;
-	Name: string;
-	Price: number;
-	Category: ICategory;
-	Refundability?: Refundability;
-	Status?: Status;
-}
-
-export const enum Status {
-	None = 0,
-	Purchased = 1,
-	Cancelled = 2,
-}
-
-export const enum Refundability {
-	None = 0,
-	Cancel = 1,
-	Refund = 2,
-}
+import * as Category from "./Category";
 
 interface IShoppingCartProperties extends Session.ISessionProperty {
+	Categories: Category.ICategory[];
 }
 
 interface IShoppingCartState {
-	Items: IPurchasable[];
 	ShowCartDialog: boolean;
+	ItemCount: number;
 }
 
 export default class ShoppingCart extends React.Component<IShoppingCartProperties, IShoppingCartState> {
@@ -42,32 +17,9 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 		super();
 
 		this.state = {
-			Items: [],
 			ShowCartDialog: false,
+			ItemCount: 0,
 		};
-	}
-
-	public Add(item: IPurchasable) {
-		this.setState(
-			{
-				Items: this.state.Items.concat(item),
-				ShowCartDialog: true,
-			});
-	}
-
-	public Remove(item: IPurchasable) {
-		const items = this.state.Items;
-		const index = items.indexOf(item);
-		if (index === -1)
-			return;
-
-		items.splice(index, 1);
-		if (items.length === 0) {
-			this.setState({
-				ShowCartDialog: false,
-			});
-		}
-		this.forceUpdate();
 	}
 
 	protected PopUpClose() {
@@ -79,45 +31,55 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 		this.setState({ ShowCartDialog: false });
 	}
 
+	/**
+	 * Notifies the cart that an item has just been added.
+	 */
+	public AddedItem() {
+		this.setState({
+			ShowCartDialog: true,
+			ItemCount: this.state.ItemCount + 1,
+		});
+	}
+
+	/**
+	 * Notifies the cart that an item has just been removed.W
+	 */
+	public RemovedItem() {
+		this.setState({
+			ItemCount: this.state.ItemCount - 1,
+		});
+	}
+
 	render(): JSX.Element {
 		let viewCart: string;
-		const items = this.state.Items;
+		const cartIsEmpty = this.state.ItemCount === 0;
 
-		if (items.length != 0)
-			viewCart = `View Cart (${items.length})`
+		if (cartIsEmpty === false)
+			viewCart = `View Cart (${this.state.ItemCount})`
 		else
 			viewCart = "Cart is Empty";
 
-		const categories: Objects.IStringDictionary<IPurchasable[] | undefined> = {};
-		for (const item of items) {
-			let array = categories[item.Category.Name];
-			if (array === undefined)
-				categories[item.Category.Name] = array = [];
-
-			array.push(item);
-		}
-
 		return (
 			<div>
-				<button className="Cart" disabled={items.length === 0} onClick={() => this.setState({ ShowCartDialog: true })}>{viewCart}</button>
+				<button className="Cart" disabled={cartIsEmpty} onClick={() => this.setState({ ShowCartDialog: true })}>{viewCart}</button>
 				<PopUp Title="Shopping Cart" Show={this.state.ShowCartDialog} OnClose={() => this.PopUpClose()}>
 					{
-						Object.keys(categories).map(category => {
-							const categoryItems = categories[category];
+						this.props.Categories.map(category => {
+							const categoryItems = category.Items;
 							if (!categoryItems)
 								return null; //This shouldn't happen but enforces that categoryItems is valid.
 
 							return (
-								<table className="CartItems" key={category}>
-									<caption>{category}</caption>
+								<table className="CartItems" key={category.Name}>
+									<caption>{category.Name}</caption>
 									<tbody>
 										{categoryItems.map(item => {
 											return (
-												<tr key={`${category} ${JSON.stringify(item.Identity)}`}>
+												<tr key={`${category.Name} ${JSON.stringify(item.Identity)}`}>
 													<td>{item.Name}</td>
 													<td>${item.Price.toFixed(2)}</td>
 													<td>
-														<button onClick={() => this.Remove(item)}>Remove</button>
+														<button onClick={() => category.Remove(item)}>Remove</button>
 													</td>
 												</tr>
 											);
@@ -129,7 +91,7 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 					}
 					<button onClick={() => this.PopUpClose()}>Continue Shopping</button>
 					<button
-						disabled={items.length === 0}
+						disabled={cartIsEmpty}
 						onClick={() => this.NavigateToCheckout()}
 					>Check Out</button>
 				</PopUp>
