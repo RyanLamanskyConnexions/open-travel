@@ -9,7 +9,7 @@ caption {
 	font-weight: bold;
 }
 
-figure{
+figure {
 	margin: 0;
 }
 
@@ -147,4 +147,20 @@ figure.Thumbnail {
 	height: $ThumbnailLength;
 	max-height: $ThumbnailLength;
 	background: rgba(0, 0, 0, 0.7)
+}
+
+div.Checkout {
+	display: none;
+}
+
+div.Checkout.Show {
+	display: block;
+}
+
+div.Travel {
+	display: none;
+}
+
+div.Travel.Show {
+	display: block;
 }

@@ -1,10 +1,19 @@
 ﻿import * as React from "react";
 import Travel from "./Travel/Travel";
 import ShoppingCart from "./Commerce/ShoppingCart"
+import * as Category from "./Commerce/Category"
+import Checkout from "./Commerce/Checkout"
+import * as HotelSearch from "./Travel/Hotel/HotelSearch";
+
+export const enum View {
+	Main,
+	Checkout
+}
 
 interface ISessionState {
 	SocketStatus: string;
 	KnownAirports: any[];
+	View: View;
 }
 
 /** Common features of all command response messages. */
@@ -32,6 +41,9 @@ export default class Session extends React.Component<void, ISessionState> {
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
 	public Cart: ShoppingCart;
+	public Travel: Travel;
+	public Categories: Category.ICategory[];
+	private HotelCategory: HotelSearch.HotelCategory;
 
 	constructor() {
 		super();
@@ -39,9 +51,13 @@ export default class Session extends React.Component<void, ISessionState> {
 		this.state = {
 			SocketStatus: "None",
 			KnownAirports: [],
+			View: View.Main,
 		};
 		this.commandNumber = 0;
 		this.activeCommands = {};
+		this.Categories = [
+			this.HotelCategory = new HotelSearch.HotelCategory(this),
+		];
 	}
 
 	SetSocketStatus(message: string) {
@@ -121,8 +137,21 @@ export default class Session extends React.Component<void, ISessionState> {
 		return (
 			<div>
 				<h1>Connexions Open Travel</h1>
-				<ShoppingCart ref={ref => this.Cart = ref} />
-				<Travel Session={this} />
+				<ShoppingCart
+					ref={ref => this.Cart = ref}
+					Session={this}
+					Categories={this.Categories}
+				/>
+				<Travel
+					ref={ref => this.Travel = ref}
+					Session={this}
+					Show={this.state.View === View.Main}
+					HotelCategory={this.HotelCategory}
+				/>
+				<Checkout
+					Session={this}
+					Show={this.state.View === View.Checkout}
+				/>
 				<p>Session Status: <span>{this.state.SocketStatus}</span></p>
 			</div >
 		);

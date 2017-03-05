@@ -1,9 +1,11 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
+import SessionTemplate from "../../Session";
 import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
+import * as Category from "../../Commerce/Category"
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -17,6 +19,10 @@ interface ISearchResultViewResponse extends Session.ICommandMessage {
 	hotels: HotelApi.IHotel[];
 }
 
+interface IProperties extends Session.ISessionProperty {
+	Category: HotelCategory;
+}
+
 interface ISearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
@@ -25,7 +31,33 @@ interface ISearchState {
 	PageIndex: number;
 }
 
-export default class HotelSearch extends React.Component<Session.ISessionProperty, ISearchState> {
+interface IPriceResponse extends Session.ICommandMessage {
+}
+
+interface IRoomRate {
+	Room: HotelApi.IRoom,
+	Rate: HotelApi.IRate,
+}
+
+export class HotelCategory extends Category.Category<IRoomRate> {
+	constructor(session: SessionTemplate) {
+		super(session, "Hotel");
+	}
+
+	public PriceCheck(_itemUpdate: (item: Category.Item<IRoomRate>, newPrice: number) => void, _done: () => void) {
+		this.session.WebSocketCommand({
+			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Price, Connexions.OpenTravel.UserInterface",
+			Currency: "USD",
+			Rooms: this.Items.map(item => item.Identity)
+		}, (message: IPriceResponse) => {
+			if (message.RanToCompletion) {
+
+			}
+		});
+	}
+}
+
+export default class HotelSearch extends React.Component<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -147,8 +179,14 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 					/>
 					{
 						!!this.state.View && !!this.state.View.hotels ?
-							this.state.View.hotels.map(hotel => <Result Session={this.props.Session} Hotel={hotel} key={hotel.id} />) :
-							<div></div>
+							this.state.View.hotels.map(hotel =>
+								<Result
+									Session={this.props.Session}
+									Category={this.props.Category}
+									Hotel={hotel}
+									key={hotel.id
+									} />) :
+							null
 					}
 					<PageList
 						Disabled={this.state.SearchInProgress}
