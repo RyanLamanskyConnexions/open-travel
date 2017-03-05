@@ -2,7 +2,7 @@
 
 export interface ICategory {
 	Name: string;
-	PriceCheck(done: (item: IPurchasable, newPrice: number) => void): void;
+	PriceCheck(itemUpdate: (item: IPurchasable, newPrice: number) => void, done: () => void): void;
 	Items: IPurchasable[];
 	Add(item: IPurchasable): void;
 	Remove(item: IPurchasable): void;
@@ -32,13 +32,11 @@ export const enum Refundability {
 }
 
 export interface Item<T> extends IPurchasable {
-	/** A value that can uniquely identify the purchasable item within its associated system. */
-	Identity: T;
 	Category: Category<T>;
+	Details: T;
 }
 
-export abstract class Category<T> implements ICategory
-{
+export abstract class Category<T> implements ICategory {
 	public session: SessionTemplate;
 	public Name: string;
 	public Items: Item<T>[];
@@ -49,8 +47,7 @@ export abstract class Category<T> implements ICategory
 		this.Items = [];
 	}
 
-	public Add(item: Item<T>)
-	{
+	public Add(item: Item<T>) {
 		this.Items.push(item);
 
 		this.session.Cart.AddedItem();
@@ -68,12 +65,5 @@ export abstract class Category<T> implements ICategory
 		this.session.Cart.RemovedItem();
 	}
 
-	public PriceCheck(_done: (item: Item<T>, newPrice: number) => void) {
-		this.session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Price, Connexions.OpenTravel.UserInterface",
-			Currency: "USD",
-			Rooms: this.Items.map(item => item.Identity)
-		}, _message => {
-		});
-	}
+	public abstract PriceCheck(itemUpdate: (item: IPurchasable, newPrice: number) => void, done: () => void): void;
 }

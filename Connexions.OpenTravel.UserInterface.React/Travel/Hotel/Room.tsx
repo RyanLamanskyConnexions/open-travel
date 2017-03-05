@@ -16,7 +16,8 @@ interface IRoomProperties extends Session.ISessionProperty {
 export default class Room extends React.Component<IRoomProperties, void> {
 	render() {
 		const room = this.props.Room;
-		const price = this.props.Rate.totalFare;
+		const rate = this.props.Rate;
+		const price = rate.totalFare;
 
 		return (
 			<li key={room.refId}>
@@ -30,7 +31,11 @@ export default class Room extends React.Component<IRoomProperties, void> {
 					},
 					Category: this.props.Category,
 					Name: `${room.name} at ${this.props.Hotel.name}`,
-					Price: price
+					Price: price,
+					Details: {
+						Room: room,
+						Rate: rate,
+					},
 				})}>Add to Itinerary</button>
 			</li>
 		);

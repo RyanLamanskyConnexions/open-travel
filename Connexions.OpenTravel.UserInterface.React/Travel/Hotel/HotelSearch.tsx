@@ -31,9 +31,29 @@ interface ISearchState {
 	PageIndex: number;
 }
 
-export class HotelCategory extends Category.Category<any> {
+interface IPriceResponse extends Session.ICommandMessage {
+}
+
+interface IRoomRate {
+	Room: HotelApi.IRoom,
+	Rate: HotelApi.IRate,
+}
+
+export class HotelCategory extends Category.Category<IRoomRate> {
 	constructor(session: SessionTemplate) {
 		super(session, "Hotel");
+	}
+
+	public PriceCheck(_itemUpdate: (item: Category.Item<IRoomRate>, newPrice: number) => void, _done: () => void) {
+		this.session.WebSocketCommand({
+			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Price, Connexions.OpenTravel.UserInterface",
+			Currency: "USD",
+			Rooms: this.Items.map(item => item.Identity)
+		}, (message: IPriceResponse) => {
+			if (message.RanToCompletion) {
+
+			}
+		});
 	}
 }
 

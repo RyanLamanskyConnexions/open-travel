@@ -42,7 +42,7 @@ export default class Session extends React.Component<void, ISessionState> {
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
 	public Cart: ShoppingCart;
 	public Travel: Travel;
-	private Categories: Category.ICategory[];
+	public Categories: Category.ICategory[];
 	private HotelCategory: HotelSearch.HotelCategory;
 
 	constructor() {
