@@ -4,6 +4,7 @@ import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
+import * as Cart from "../../Commerce/ShoppingCart"
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -27,6 +28,7 @@ interface ISearchState {
 
 export default class HotelSearch extends React.Component<Session.ISessionProperty, ISearchState> {
 	private searchStarted: number;
+	private category: Cart.ICategory;
 
 	constructor() {
 		super();
@@ -38,6 +40,10 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 			View: {},
 			PageIndex: 0,
 		};
+
+		this.category = {
+			Name: "Hotel",
+		}
 	}
 
 	private static GetBlankSearchResponse(): ISearchResponse {
@@ -147,8 +153,14 @@ export default class HotelSearch extends React.Component<Session.ISessionPropert
 					/>
 					{
 						!!this.state.View && !!this.state.View.hotels ?
-							this.state.View.hotels.map(hotel => <Result Session={this.props.Session} Hotel={hotel} key={hotel.id} />) :
-							<div></div>
+							this.state.View.hotels.map(hotel =>
+								<Result
+									Session={this.props.Session}
+									Category={this.category}
+									Hotel={hotel}
+									key={hotel.id
+									} />) :
+							null
 					}
 					<PageList
 						Disabled={this.state.SearchInProgress}

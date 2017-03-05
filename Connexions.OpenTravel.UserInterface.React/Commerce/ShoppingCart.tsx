@@ -3,11 +3,16 @@ import * as React from "react";
 import * as Objects from "../Common/Objects";
 import * as Session from "../Session";
 
+export interface ICategory {
+	Name: string;
+}
+
 export interface IPurchasable {
-	Identity: string;
+	/** A value that can uniquely identify the purchasable item within its associated system. */
+	Identity: any;
 	Name: string;
 	Price: number;
-	Category: string;
+	Category: ICategory;
 	Refundability?: Refundability;
 	Status?: Status;
 }
@@ -85,9 +90,9 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 
 		const categories: Objects.IStringDictionary<IPurchasable[] | undefined> = {};
 		for (const item of items) {
-			let array = categories[item.Category];
+			let array = categories[item.Category.Name];
 			if (array === undefined)
-				categories[item.Category] = array = [];
+				categories[item.Category.Name] = array = [];
 
 			array.push(item);
 		}
@@ -108,7 +113,7 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 									<tbody>
 										{categoryItems.map(item => {
 											return (
-												<tr key={`${category} ${item.Identity}`}>
+												<tr key={`${category} ${JSON.stringify(item.Identity)}`}>
 													<td>{item.Name}</td>
 													<td>${item.Price.toFixed(2)}</td>
 													<td>

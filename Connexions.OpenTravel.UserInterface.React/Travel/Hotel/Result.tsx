@@ -4,15 +4,23 @@ import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import * as Common from "../../Common/Objects";
 import Room from "./Room";
+import * as Cart from "../../Commerce/ShoppingCart"
 
 interface IResult extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
+	Category: Cart.ICategory;
+}
+
+interface IRecommendedRoom {
+	SessionId: string;
+	RecommendationId: string;
+	Room: HotelApi.IRoom;
+	Rate: HotelApi.IRate;
 }
 
 interface IResultState {
 	RoomSearchInProgress: boolean;
-	Rooms: HotelApi.ICapiRoomSearchResultsResponse | null;
-	RatesByRefId: Common.IStringDictionary<HotelApi.IRate>;
+	Rooms: IRecommendedRoom[];
 }
 
 interface IRoomSearchResponse extends Session.ICommandMessage {
@@ -29,8 +37,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 
 		this.state = {
 			RoomSearchInProgress: false,
-			Rooms: null,
-			RatesByRefId: {},
+			Rooms: [],
 		};
 	}
 
@@ -51,15 +58,25 @@ export default class Result extends React.Component<IResult, IResultState> {
 			if (response.RanToCompletion) {
 				const ratesByRefId: Common.IStringDictionary<HotelApi.IRate> = {};
 				for (const rate of response.Results.rates) {
-					for (const rateOccupancy of rate.rateOccupancies) {
-						ratesByRefId[rateOccupancy.roomRefId] = rate;
-					}
+					ratesByRefId[rate.refId] = rate;
+				}
+
+				const roomsByRefId: Common.IStringDictionary<HotelApi.IRoom> = {};
+				for (const room of response.Results.rooms) {
+					roomsByRefId[room.refId] = room;
 				}
 
 				this.setState({
 					RoomSearchInProgress: false,
-					Rooms: response.Results,
-					RatesByRefId: ratesByRefId,
+					Rooms: response.Results.recommendations.map(reccomendation => {
+						const rate = ratesByRefId[reccomendation.rateRefIds[0]];
+						return {
+							SessionId: response.SessionId,
+							RecommendationId: reccomendation.id,
+							Rate: rate,
+							Room: roomsByRefId[rate.rateOccupancies[0].roomRefId],
+						}
+					}),
 				});
 			}
 		});
@@ -112,13 +129,17 @@ export default class Result extends React.Component<IResult, IResultState> {
 				</div>
 				<ul className="Rooms">
 					{
-						!!this.state.Rooms && !!this.state.Rooms.rooms ?
-							this.state.Rooms.rooms.map(room => <Room
-								key={room.refId}
+						!!this.state.Rooms ?
+							this.state.Rooms.map(reccomendation => <Room
+								key={reccomendation.RecommendationId}
 								Session={this.props.Session}
-								Room={room}
+								Room={reccomendation.Room}
+								Rate={reccomendation.Rate}
 								Hotel={hotel}
-								RatesByRefId={this.state.RatesByRefId} />) :
+								RecommendationId={reccomendation.RecommendationId}
+								SessionId={reccomendation.SessionId}
+								Category={this.props.Category}
+								/>) :
 							null
 					}
 				</ul>
