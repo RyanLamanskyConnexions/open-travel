@@ -4,7 +4,7 @@
 	{
 		public CapiPhone[] phones;
 
-		public class BillingAddress
+		public class Address
 		{
 			public string line1;
 			public string line2;
@@ -21,7 +21,8 @@
 			public string postalCode;
 		}
 
-		public BillingAddress billingAddress;
+		public Address address;
+		public Address billingAddress;
 
 		public string email;
 	}

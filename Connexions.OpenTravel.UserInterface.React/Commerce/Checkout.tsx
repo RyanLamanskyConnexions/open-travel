@@ -12,7 +12,10 @@ export default class Checkout extends React.Component<ICheckoutProperties, void>
 
 	private Confirm() {
 		for (var category of this.props.Session.Categories) {
-			category.PriceCheck(() => { }, () => { });
+			category.PriceCheck(() => { }, () => {
+				category.Book(() => {
+				});
+			});
 		}
 	}
 

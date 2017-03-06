@@ -37,6 +37,32 @@ namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
 			/// Updated (latest) room rate. The <see cref="pricedTotalFare"/> is the latest room rate whereas the <see cref="quotedTotalFare"/> rate can be an outdated rate.
 			/// </summary>
 			public decimal pricedTotalFare;
+
+			/// <summary>
+			/// Contains the list of information about each priced room. You need to use this information while booking the room by using the <see cref="Book"/> API.
+			/// </summary>
+			public class PricedRooms
+			{
+				/// <summary>
+				/// rateRefId for the priced room. The rateRefId represents a rate for a valid combination of rooms types and occupancies.
+				/// </summary>
+				public string rateRefId;
+
+				/// <summary>
+				/// Unique reference ID for the occupancy returned. This ID is taken from the occupancies array.
+				/// </summary>
+				public string occupancyRefId;
+
+				/// <summary>
+				/// Unique reference ID corresponding to the priced room. RefId taken from the rooms array.
+				/// </summary>
+				public string roomRefId;
+			}
+
+			/// <summary>
+			/// Contains the list of information about each priced room. You need to use this information while booking the room by using the <see cref="Book"/> API.
+			/// </summary>
+			public PricedRooms[] pricedRooms;
 		}
 
 		public class Response : CommandMessage

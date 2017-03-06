@@ -5,7 +5,7 @@ import * as HotelApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
-import * as Category from "../../Commerce/Category"
+import * as Category from "../../Commerce/Category";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -31,10 +31,20 @@ interface ISearchState {
 	PageIndex: number;
 }
 
+interface IPriceRoom {
+	SessionId: string;
+	HotelId: string;
+	RecommendationId: string;
+}
+
 interface IPriceResponse extends Session.ICommandMessage {
+	Room: IPriceRoom;
+	Price: HotelApi.IPriceRoomResponse;
 }
 
 interface IRoomRate {
+	SessionId: string;
+	HotelId: string;
 	Room: HotelApi.IRoom,
 	Rate: HotelApi.IRate,
 }
@@ -44,14 +54,191 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 		super(session, "Hotel");
 	}
 
-	public PriceCheck(_itemUpdate: (item: Category.Item<IRoomRate>, newPrice: number) => void, _done: () => void) {
+	public PriceCheck(_itemUpdate: (item: Category.Item<IRoomRate>, newPrice: number) => void, done: () => void) {
 		this.session.WebSocketCommand({
 			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Price, Connexions.OpenTravel.UserInterface",
 			Currency: "USD",
 			Rooms: this.Items.map(item => item.Identity)
 		}, (message: IPriceResponse) => {
 			if (message.RanToCompletion) {
+				done();
+			}
+		});
+	}
 
+	public Book(done: () => void) {
+		this.session.WebSocketCommand({
+			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Book, Connexions.OpenTravel.UserInterface",
+			Currency: "USD",
+			Requests: this.Items.map(item => {
+				const room = item.Details.Room;
+				const rate = item.Details.Rate;
+
+				return {
+					sessionId: item.Details.SessionId,
+					hotelId: item.Details.HotelId,
+					rooms: [
+						{
+							roomRefId: room.refId,
+							rateRefId: rate.refId,
+							guests: [
+								{
+									type: "adult",
+									name: {
+										title: "mr",
+										first: "John",
+										middle: "Alex",
+										last: "Smith",
+										suffix: "Jr",
+									},
+									age: 25,
+								},
+								{
+									type: "adult",
+									name: {
+										title: "mrs",
+										first: "Jane",
+										middle: "Anne",
+										last: "Smith",
+										suffix: "Jr",
+									},
+									age: 26,
+								},
+							],
+						},
+					],
+					paymentBreakup: [
+						{
+							paymentMethodRefId: "1",
+							amount: rate.totalFare,
+							currency: "USD",
+							type: "card",
+						},
+					],
+					paymentMethod: {
+						cards: [
+							{
+								refId: "1",
+								num: "4444" + "3333" + "2222" + "1111",
+								nameOnCard: "John Doe",
+								cvv: "123",
+								issuedBy: "AX",
+								expiry: {
+									month: 12,
+									year: 2020,
+								},
+								contactInfo: {
+									phones: [
+										{
+											type: "unknown",
+											num: "555-0173",
+											countryCode: "1",
+											ext: "123",
+											areaCode: "200",
+										},
+									],
+									billingAddress: {
+										line1: "3077 ACME Street",
+										line2: "Landmark: Beside the ACME Shopping Mall",
+										city: {
+											code: "SFO",
+											name: "San Francisco",
+										},
+										state: {
+											code: "CA",
+											name: "California",
+										},
+										countryCode: "US",
+										postalCode: "94133",
+									},
+									email: "abc@xyz.com",
+								},
+							},
+						],
+					},
+					customer: {
+						name: {
+							title: "mr",
+							first: "John",
+							middle: "Alex",
+							last: "Smith",
+							suffix: "Jr",
+						},
+						contactInfo: {
+							phones: [
+								{
+									type: "unknown",
+									num: "555-0173",
+									countryCode: "1",
+									ext: "123",
+									areaCode: "200",
+								},
+							],
+							address: {
+								line1: "3077 ACME Street",
+								line2: "Landmark: Beside the ACME Shopping Mall",
+								city: {
+									code: "SFO",
+									name: "San Francisco",
+								},
+								state: {
+									code: "CA",
+									name: "California",
+								},
+								countryCode: "US",
+								postalCode: "94133",
+							},
+							email: "abc@xyz.com",
+						},
+						dob: "1989-12-25",
+						nationality: "US",
+						customerId: "43435",
+					},
+					primaryGuest: {
+						name: {
+							title: "mr",
+							first: "John",
+							middle: "Alex",
+							last: "Smith",
+							suffix: "Jr",
+						},
+						contactInfo: {
+							phones: [
+								{
+									type: "unknown",
+									num: "555-0173",
+									countryCode: "1",
+									ext: "123",
+									areaCode: "200",
+								},
+							],
+							address: {
+								line1: "3077 ACME Street",
+								line2: "Landmark: Beside the ACME Shopping Mall",
+								city: {
+									code: "SFO",
+									name: "San Francisco",
+								},
+								state: {
+									code: "CA",
+									name: "California",
+								},
+								countryCode: "US",
+								postalCode: "94133",
+							},
+							email: "abc@xyz.com",
+						},
+						age: 25,
+						hotelLoyalty: {
+							chainCode: "HI",
+							num: "123",
+						},
+					},
+				};
+			}),
+		}, message => {
+			if (message.RanToCompletion) {
+				done();
 			}
 		});
 	}

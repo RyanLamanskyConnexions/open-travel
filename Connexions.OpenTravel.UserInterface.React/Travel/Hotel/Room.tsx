@@ -33,6 +33,8 @@ export default class Room extends React.Component<IRoomProperties, void> {
 					Name: `${room.name} at ${this.props.Hotel.name}`,
 					Price: price,
 					Details: {
+						SessionId: this.props.SessionId,
+						HotelId: this.props.Hotel.id,
 						Room: room,
 						Rate: rate,
 					},
