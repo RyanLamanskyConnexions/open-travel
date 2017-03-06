@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Connexions.OpenTravel.UserInterface\Connexions.Travel.csproj" />
+    <ProjectReference Include="..\Connexions.Travel\Connexions.Travel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
