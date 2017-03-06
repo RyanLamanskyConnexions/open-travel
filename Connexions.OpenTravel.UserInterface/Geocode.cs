@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Connexions.OpenTravel
+﻿namespace Connexions.Travel
 {
 	/// <summary>
 	/// Represents a point on the surface of the earth using its latitude and longitude.
@@ -35,5 +31,5 @@ namespace Connexions.OpenTravel
 		/// The longitude portion of the coordinates.
 		/// </summary>
 		public double Longitude { get; set; }
-}
+	}
 }

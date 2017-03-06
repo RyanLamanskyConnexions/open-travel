@@ -1,4 +1,4 @@
-﻿namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+﻿namespace Connexions.Travel.Commands.Hotel
 {
 	class CapiSearchInitResponse : CapiBaseResponse
 	{

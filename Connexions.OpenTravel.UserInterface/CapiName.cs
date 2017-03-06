@@ -1,4 +1,4 @@
-﻿namespace Connexions.OpenTravel.UserInterface
+﻿namespace Connexions.Travel
 {
 	class CapiName
 	{

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Connexions.OpenTravel.UserInterface.Html
+namespace Connexions.Travel.Html
 {
 	/// <summary>
 	/// A server-side-sanitized HTML component.

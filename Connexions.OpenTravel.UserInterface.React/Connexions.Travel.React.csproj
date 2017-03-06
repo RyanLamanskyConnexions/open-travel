@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp1.1\Connexions.OpenTravel.UserInterface.React.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp1.1\Connexions.Travel.React.xml</DocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <NoWarn>1701;1702;1705</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp1.1\Connexions.OpenTravel.UserInterface.React.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp1.1\Connexions.Travel.React.xml</DocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <NoWarn>1701;1702;1705</NoWarn>

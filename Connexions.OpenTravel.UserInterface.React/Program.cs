@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
-namespace Connexions.OpenTravel.UserInterface.React
+namespace Connexions.Travel.React
 {
 	/// <summary>
 	/// Contains the main entry point to the program.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+namespace Connexions.Travel.Commands.Hotel
 {
 	/// <summary>
 	/// Compares CAPI hotel images for quality based on their caption and dimensions.

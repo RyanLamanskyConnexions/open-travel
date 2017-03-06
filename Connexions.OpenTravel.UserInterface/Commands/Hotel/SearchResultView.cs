@@ -6,7 +6,7 @@ using static System.Diagnostics.Debug;
 
 #pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+namespace Connexions.Travel.Commands.Hotel
 {
 	/// <summary>
 	/// Changes the view of results based on provided input.

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+namespace Connexions.Travel.Commands.Hotel
 {
 	class Price : Message, ICommand
 	{

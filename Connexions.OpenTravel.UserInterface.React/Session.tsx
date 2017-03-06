@@ -82,7 +82,7 @@ export default class Session extends React.Component<void, ISessionState> {
 		this.socket.onopen = () => {
 			component.SetSocketStatus("Connected.");
 			component.WebSocketCommand({
-				"$type": "Connexions.OpenTravel.UserInterface.Commands.Authorize, Connexions.OpenTravel.UserInterface",
+				"$type": "Connexions.Travel.Commands.Authorize, Connexions.Travel",
 			}, message => {
 				const response = message as IAuthorizeResponse;
 				this.setState({

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// Descibes the common features of all user interface commands.

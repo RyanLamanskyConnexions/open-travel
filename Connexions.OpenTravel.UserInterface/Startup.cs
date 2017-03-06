@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Connexions.Travel.Tests")]
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// ASP.NET Core startup processes.

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// Contains responses to request <see cref="Message"/>s.

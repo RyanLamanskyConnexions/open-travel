@@ -1,4 +1,4 @@
-﻿namespace Connexions.OpenTravel.UserInterface.Html
+﻿namespace Connexions.Travel.Html
 {
 	class TextElement : Parsed
 	{

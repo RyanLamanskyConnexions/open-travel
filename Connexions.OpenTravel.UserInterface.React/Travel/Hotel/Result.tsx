@@ -47,7 +47,7 @@ export default class Result extends React.Component<IResult, IResultState> {
 		});
 
 		this.props.Session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Rooms, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.Travel.Commands.Hotel.Rooms, Connexions.Travel",
 			Currency: "USD",
 			Occupants: [{ Age: 25 }, { Age: 26 }],
 			CheckInDate: Api.CreateInitialDate(30),

@@ -4,7 +4,7 @@ using System.Net;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	class CapiBaseResponse : IHttpResponseHeaders
 	{

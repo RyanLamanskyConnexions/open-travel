@@ -10,13 +10,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Release\netstandard1.4\Connexions.OpenTravel.UserInterface.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netstandard1.4\Connexions.Travel.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.4\Connexions.OpenTravel.UserInterface.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard1.4\Connexions.Travel.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

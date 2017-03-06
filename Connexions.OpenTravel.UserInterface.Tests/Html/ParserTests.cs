@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Newtonsoft.Json;
 
-namespace Connexions.OpenTravel.UserInterface.Html
+namespace Connexions.Travel.Html
 {
 	[TestClass]
 	public class ParserTests

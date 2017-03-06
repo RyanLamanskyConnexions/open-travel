@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 #pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Car
+namespace Connexions.Travel.Commands.Car
 {
 	class Search : Message, ICommand
 	{

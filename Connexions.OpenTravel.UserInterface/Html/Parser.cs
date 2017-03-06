@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Connexions.OpenTravel.UserInterface.Html
+namespace Connexions.Travel.Html
 {
 	[Flags]
 	enum ParserOptions

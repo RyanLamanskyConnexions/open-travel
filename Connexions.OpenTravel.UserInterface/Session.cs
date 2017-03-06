@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static System.Diagnostics.Debug;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// Maintains a web socket connection which represents a user's session.

@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Xml.Linq;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// Encapsulates errors that occurr during a call to a JSON service.

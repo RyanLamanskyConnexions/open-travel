@@ -1,4 +1,4 @@
-﻿namespace Connexions.OpenTravel.UserInterface
+﻿namespace Connexions.Travel
 {
 	/// <summary>
 	/// The common format shared by the various CAPI status calls.

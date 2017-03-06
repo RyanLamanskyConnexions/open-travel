@@ -1,4 +1,4 @@
-﻿namespace Connexions.OpenTravel.Configuration
+﻿namespace Connexions.Travel.Configuration
 {
 	/// <summary>
 	/// Encapsulates CAPI configuration settings.

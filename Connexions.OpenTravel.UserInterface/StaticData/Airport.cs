@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Connexions.OpenTravel.UserInterface.StaticData
+namespace Connexions.Travel.StaticData
 {
 	/// <summary>
 	/// Encapsulates basic information about an airport.

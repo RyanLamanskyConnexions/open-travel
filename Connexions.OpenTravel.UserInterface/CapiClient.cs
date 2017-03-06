@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	class CapiClient : ICapiClient
 	{

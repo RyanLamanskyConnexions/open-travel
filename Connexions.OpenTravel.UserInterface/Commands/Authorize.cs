@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface.Commands
+namespace Connexions.Travel.Commands
 {
 	class Authorize : Message, ICommand
 	{

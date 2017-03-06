@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	interface ICapiClient
 	{

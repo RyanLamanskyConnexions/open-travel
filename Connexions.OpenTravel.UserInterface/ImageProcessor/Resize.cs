@@ -15,7 +15,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Connexions.OpenTravel.UserInterface.ImageProcessor
+namespace Connexions.Travel.ImageProcessor
 {
 	static class Resize
 	{

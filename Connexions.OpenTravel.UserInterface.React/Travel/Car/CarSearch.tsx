@@ -61,7 +61,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 		});
 
 		this.props.Session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Car.Search, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.Travel.Commands.Car.Search, Connexions.Travel",
 			Currency: "USD",
 			Pickup: Api.CreateInitialDate(30) + "T18:30",
 			DropOff: Api.CreateInitialDate(32) + "T20:30",
@@ -101,7 +101,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 			});
 
 			this.props.Session.WebSocketCommand({
-				"$type": "Connexions.OpenTravel.UserInterface.Commands.Car.SearchResultView, Connexions.OpenTravel.UserInterface",
+				"$type": "Connexions.Travel.Commands.Car.SearchResultView, Connexions.Travel",
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,

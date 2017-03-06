@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Connexions.OpenTravel.UserInterface
+namespace Connexions.Travel
 {
 	/// <summary>
 	/// Common features of all command response messages.

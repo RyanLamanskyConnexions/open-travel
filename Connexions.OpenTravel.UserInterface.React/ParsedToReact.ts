@@ -26,10 +26,10 @@ export function Convert(parsed: IParsed[]): (React.DOMElement<any, any> | string
 	return parsed.map(p => {
 		const type = (p as any)["$type"] as string;
 		switch (type) {
-			case "Connexions.OpenTravel.UserInterface.Html.Element, Connexions.OpenTravel.UserInterface":
+			case "Connexions.Travel.Html.Element, Connexions.Travel":
 				const element = p as IElement;
 				return React.createElement(element.Name as string, { key: ++key }, element.Children ? Convert(element.Children) : null);
-			case "Connexions.OpenTravel.UserInterface.Html.TextElement, Connexions.OpenTravel.UserInterface":
+			case "Connexions.Travel.Html.TextElement, Connexions.Travel":
 				return (p as ITextElement).Content;
 		}
 

@@ -56,7 +56,7 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 
 	public PriceCheck(_itemUpdate: (item: Category.Item<IRoomRate>, newPrice: number) => void, done: () => void) {
 		this.session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Price, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.Travel.Commands.Hotel.Price, Connexions.Travel",
 			Currency: "USD",
 			Rooms: this.Items.map(item => item.Identity)
 		}, (message: IPriceResponse) => {
@@ -68,7 +68,7 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 
 	public Book(done: () => void) {
 		this.session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Book, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.Travel.Commands.Hotel.Book, Connexions.Travel",
 			Currency: "USD",
 			Requests: this.Items.map(item => {
 				const room = item.Details.Room;
@@ -280,7 +280,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 		});
 
 		this.props.Session.WebSocketCommand({
-			"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.Search, Connexions.OpenTravel.UserInterface",
+			"$type": "Connexions.Travel.Commands.Hotel.Search, Connexions.Travel",
 			Currency: "USD",
 			Occupants: [{ Age: 25 }, { Age: 26 }],
 			CheckInDate: Api.CreateInitialDate(30),
@@ -322,7 +322,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 			});
 
 			this.props.Session.WebSocketCommand({
-				"$type": "Connexions.OpenTravel.UserInterface.Commands.Hotel.SearchResultView, Connexions.OpenTravel.UserInterface",
+				"$type": "Connexions.Travel.Commands.Hotel.SearchResultView, Connexions.Travel",
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,

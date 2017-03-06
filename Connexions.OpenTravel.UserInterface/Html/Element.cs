@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Connexions.OpenTravel.UserInterface.Html
+namespace Connexions.Travel.Html
 {
 	class Element : Parsed
 	{

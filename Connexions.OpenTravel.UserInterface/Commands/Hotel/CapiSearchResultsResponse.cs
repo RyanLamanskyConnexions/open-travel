@@ -5,7 +5,7 @@ using static System.Globalization.CultureInfo;
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
 #pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+namespace Connexions.Travel.Commands.Hotel
 {
 	/// <summary>
 	/// Contains the full results from a search.

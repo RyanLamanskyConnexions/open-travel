@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Image = Connexions.OpenTravel.UserInterface.Commands.Hotel.CapiSearchResultsResponse.Hotel.Image;
+using Image = Connexions.Travel.Commands.Hotel.CapiSearchResultsResponse.Hotel.Image;
 
-namespace Connexions.OpenTravel.UserInterface.Commands.Hotel
+namespace Connexions.Travel.Commands.Hotel
 {
 	[TestClass]
 	public class ImageComparerTests
