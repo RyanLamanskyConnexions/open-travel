@@ -38,7 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Connexions.OpenTravel.UserInterface\Connexions.OpenTravel.UserInterface.csproj" />
-    <ProjectReference Include="..\Connexions.OpenTravel\Connexions.OpenTravel.csproj" />
   </ItemGroup>
 
 </Project>
