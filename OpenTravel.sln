@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.OpenTravel.UserInterface.React", "Connexions.OpenTravel.UserInterface.React\Connexions.OpenTravel.UserInterface.React.csproj", "{3128495A-8F2F-4F5D-90FE-97664FC03D74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.Travel.React", "Connexions.OpenTravel.UserInterface.React\Connexions.Travel.React.csproj", "{3128495A-8F2F-4F5D-90FE-97664FC03D74}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3D05B76E-20FC-48AF-A737-C54792C72E19}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,9 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connexions.OpenTravel.UserInterface", "Connexions.OpenTravel.UserInterface\Connexions.OpenTravel.UserInterface.csproj", "{745455DE-D123-44E3-87A3-2802CEA81191}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connexions.Travel", "Connexions.OpenTravel.UserInterface\Connexions.Travel.csproj", "{745455DE-D123-44E3-87A3-2802CEA81191}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connexions.OpenTravel.UserInterface.Tests", "Connexions.OpenTravel.UserInterface.Tests\Connexions.OpenTravel.UserInterface.Tests.csproj", "{F5B59AC8-F8BD-44A0-8055-FA6CF0E5A610}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connexions.Travel.Tests", "Connexions.OpenTravel.UserInterface.Tests\Connexions.Travel.Tests.csproj", "{F5B59AC8-F8BD-44A0-8055-FA6CF0E5A610}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

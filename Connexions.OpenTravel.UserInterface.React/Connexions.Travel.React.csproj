@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.AspNetCore.WebSockets.Server" Version="0.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Connexions.OpenTravel.UserInterface\Connexions.OpenTravel.UserInterface.csproj" />
+    <ProjectReference Include="..\Connexions.OpenTravel.UserInterface\Connexions.Travel.csproj" />
   </ItemGroup>
 
 </Project>

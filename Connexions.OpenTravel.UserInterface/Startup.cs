@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Connexions.OpenTravel.UserInterface.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Connexions.Travel.Tests")]
 
 namespace Connexions.OpenTravel.UserInterface
 {
