@@ -143,19 +143,40 @@ namespace Connexions.Travel.Commands.Hotel
 
 			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
-			var fullResults = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results/all", new
-			{
-				sessionId = initializationResponse.sessionId,
-				currency = this.Currency,
-				contentPrefs = new[]
-				{
-					"basic",
-					"images",
-					"amenities",
-				},
-			}, session.CancellationToken);
 
-			fullResults.PrepareForClient();
+			const int fullResultPageSize = 200;
+
+			var fullResultPages = await Task.WhenAll(Enumerable
+				.Range(1, statusResponse.hotelCount / fullResultPageSize + (statusResponse.hotelCount % fullResultPageSize != 0 ? 1 : 0))
+				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+				{
+					sessionId = initializationResponse.sessionId,
+					currency = this.Currency,
+					contentPrefs = new[]
+					{
+						"basic",
+						"images",
+						"amenities",
+					},
+					paging = new
+					{
+						pageNo = pageNumber,
+						pageSize = fullResultPageSize,
+						orderBy = "price asc",
+					},
+				}, session.CancellationToken).ContinueWith(task =>
+				{
+					task.Result.PrepareForClient();
+					return task.Result;
+				})
+				));
+
+			var fullResults = new CapiSearchResultsResponse
+			{
+				hotels = fullResultPages
+				.SelectMany(fullResultPage => fullResultPage.hotels)
+				.ToArray(),
+			};
 
 			searchesBySession[initializationResponse.sessionId] = fullResults;
 
