@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.Travel.React", "Connexions.Travel.React\Connexions.Travel.React.csproj", "{C4185697-EE00-44C3-A531-85E5690C586C}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3D05B76E-20FC-48AF-A737-C54792C72E19}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -12,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.Travel", "Connexions.Travel\Connexions.Travel.csproj", "{B85A36FF-C0ED-47C9-8CEB-0298AF128AE2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.Travel.React", "Connexions.Travel.React\Connexions.Travel.React.csproj", "{C4185697-EE00-44C3-A531-85E5690C586C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connexions.Travel.Tests", "Connexions.Travel.Tests\Connexions.Travel.Tests.csproj", "{5E56B694-A308-4144-B572-73767EAFE9FA}"
 EndProject
