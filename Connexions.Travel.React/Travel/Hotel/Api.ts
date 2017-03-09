@@ -149,3 +149,20 @@ export interface IPriceRoomResponse {
 	/** Contains the list of information about each priced room. You need to use this information while booking the room by using the Book API. */
 	pricedRooms: IRateOccupancyRoom[];
 }
+
+/** The response from a booking API call. */
+export interface IBookingInitializationResponse {
+	/** Unique ID for the booking. You need to use the bookingId as an identifier for the booking in other API calls at a later point in time. */
+	bookingId: string;
+}
+
+/** The response from a booking status API call. */
+export interface IBookingStatusResponse extends IBookingInitializationResponse
+{
+	/** Indicates the progress of the Book API call. */
+	bookingProgress: string;
+	/** Indicates the status of the hotel booking. */
+	bookingStatus: string;
+	/** Indicates the status of the payment for the booking. */
+	paymentStatus: string;
+}

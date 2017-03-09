@@ -45,8 +45,13 @@ interface IPriceResponse extends Session.ICommandMessage {
 interface IRoomRate {
 	SessionId: string;
 	HotelId: string;
-	Room: HotelApi.IRoom,
-	Rate: HotelApi.IRate,
+	Room: HotelApi.IRoom;
+	Rate: HotelApi.IRate;
+	Price?: HotelApi.IPriceRoomResponse;
+}
+
+export interface IBookingResponse extends Session.ICommandMessage {
+	Status: HotelApi.IBookingStatusResponse;
 }
 
 export class HotelCategory extends Category.Category<IRoomRate> {
@@ -60,27 +65,44 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 			Currency: "USD",
 			Rooms: this.Items.map(item => item.Identity)
 		}, (message: IPriceResponse) => {
+			for (var i = 0; i < this.Items.length; i++) {
+				const item = this.Items[i];
+				const id = item.Identity as IPriceRoom;
+
+				if (id.HotelId !== message.Room.HotelId)
+					continue;
+				if (id.SessionId !== message.Room.SessionId)
+					continue;
+				if (id.RecommendationId !== message.Room.RecommendationId)
+					continue;
+
+				item.Details.Price = message.Price;
+			}
+
 			if (message.RanToCompletion) {
 				done();
 			}
 		});
 	}
 
-	public Book(done: () => void) {
+	public Book(done: (confirmation: JSX.Element) => void) {
 		this.session.WebSocketCommand({
 			"$type": "Connexions.Travel.Commands.Hotel.Book, Connexions.Travel",
 			Currency: "USD",
 			Requests: this.Items.map(item => {
-				const room = item.Details.Room;
-				const rate = item.Details.Rate;
+				const details = item.Details;
+				const price = details.Price;
+
+				if (!price)
+					return;
 
 				return {
-					sessionId: item.Details.SessionId,
-					hotelId: item.Details.HotelId,
+					sessionId: details.SessionId,
+					hotelId: details.HotelId,
 					rooms: [
 						{
-							roomRefId: room.refId,
-							rateRefId: rate.refId,
+							roomRefId: price.pricedRooms[0].roomRefId,
+							rateRefId: price.pricedRooms[0].rateRefId,
 							guests: [
 								{
 									type: "adult",
@@ -110,7 +132,7 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 					paymentBreakup: [
 						{
 							paymentMethodRefId: "1",
-							amount: rate.totalFare,
+							amount: price.pricedTotalFare,
 							currency: "USD",
 							type: "card",
 						},
@@ -236,9 +258,9 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 					},
 				};
 			}),
-		}, message => {
+		}, (message: IBookingResponse) => {
 			if (message.RanToCompletion) {
-				done();
+				done(<p key={message.Status.bookingId}>{JSON.stringify(message.Status)}</p>);
 			}
 		});
 	}
