@@ -3,7 +3,7 @@
 export interface ICategory {
 	Name: string;
 	PriceCheck(itemUpdate: (item: IPurchasable, newPrice: number) => void, done: () => void): void;
-	Book(done: () => void): void;
+	Book(done: (confirmation: JSX.Element) => void): void;
 	Items: IPurchasable[];
 	Add(item: IPurchasable): void;
 	Remove(item: IPurchasable): void;
@@ -68,5 +68,5 @@ export abstract class Category<T> implements ICategory {
 
 	public abstract PriceCheck(itemUpdate: (item: IPurchasable, newPrice: number) => void, done: () => void): void;
 
-	public abstract Book(done: () => void): void;
+	public abstract Book(done: (confirmation: JSX.Element) => void): void;
 }

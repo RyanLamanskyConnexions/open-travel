@@ -116,10 +116,20 @@ namespace Connexions.Travel.Commands.Hotel
 		}
 #pragma warning restore
 
+		class Response : CommandMessage
+		{
+			public CapiBookingStatusResponse Status;
+		}
+
 		async Task ICommand.ExecuteAsync(Session session)
 		{
 			var capi = session.GetService<ICapiClient>();
 			const string basePath = "hotel/v1.0/hotel/book/";
+
+			var response = new Response
+			{
+				Sequence = Sequence
+			};
 
 			foreach (var request in this.Requests)
 			{
@@ -130,18 +140,19 @@ namespace Connexions.Travel.Commands.Hotel
 
 				Assert(initializationResponse != null);
 
-				var statusResponse = await capi.PostAsync<CapiBookingInitializationResponse>(
+				var statusResponse = await capi.PostAsync<CapiBookingStatusResponse>(
 					basePath + "status",
 					initializationResponse,
 					session.CancellationToken);
 
 				Assert(statusResponse != null);
+
+				response.Status = statusResponse;
 			}
 
-			await session.SendAsync(new CommandMessage
-			{
-				RanToCompletion = true
-			});
+			response.RanToCompletion = true;
+
+			await session.SendAsync(response);
 		}
 	}
 }

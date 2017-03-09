@@ -50,6 +50,12 @@ export default class ShoppingCart extends React.Component<IShoppingCartPropertie
 		});
 	}
 
+	public Clear() {
+		this.setState({
+			ItemCount: 0,
+		});
+	}
+
 	render(): JSX.Element {
 		let viewCart: string;
 		const cartIsEmpty = this.state.ItemCount === 0;
