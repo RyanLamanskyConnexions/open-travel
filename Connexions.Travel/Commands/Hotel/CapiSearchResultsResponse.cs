@@ -46,8 +46,8 @@ namespace Connexions.Travel.Commands.Hotel
 			{
 				public string url;
 				public string imageCaption;
-				public int? height;
-				public int? width;
+				public double? height;
+				public double? width;
 				public float horizontalResolution;
 				public float verticalResolution;
 
