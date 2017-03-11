@@ -117,6 +117,8 @@ namespace Connexions.Travel.Commands.Hotel
 				}
 			} while (response.FirstPageAvailable == false);
 
+			const int pageSize = 10;
+
 			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
@@ -130,7 +132,7 @@ namespace Connexions.Travel.Commands.Hotel
 				paging = new
 				{
 					pageNo = 1,
-					pageSize = 10,
+					pageSize = pageSize,
 					orderBy = "price asc",
 				},
 			}, session.CancellationToken);
@@ -138,11 +140,21 @@ namespace Connexions.Travel.Commands.Hotel
 			page.PrepareForClient();
 
 			response.FirstPage = page;
-			await session.SendAsync(response);
-			response.FirstPage = null; //Don't need to send this giant object again.
 
 			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
+
+			if (statusResponse.hotelCount <= pageSize)
+			{
+				//No need for extra work if the full results fit in the first page, finish now.
+				response.FullResultsAvailable = true;
+				response.RanToCompletion = true;
+				await session.SendAsync(response);
+				return;
+			}
+
+			await session.SendAsync(response);
+			response.FirstPage = null; //Don't need to send this giant object again.
 
 			const int fullResultPageSize = 200;
 
