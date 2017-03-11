@@ -94,6 +94,14 @@ namespace Connexions.Travel.Commands.Hotel
 				},
 			}, session.CancellationToken);
 
+			if (initializationResponse.sessionId == null)
+			{
+				response.RanToCompletion = true;
+				response.ErrorMessage = initializationResponse.message ?? "Search initialization failed with no message.";
+				await session.SendAsync(response);
+				return;
+			}
+
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 

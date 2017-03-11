@@ -22,6 +22,8 @@ export interface ICommandMessage {
 	Sequence: number;
 	/** When true, no further messages to this command will be sent and it should no longer be tracked by the client. */
 	RanToCompletion: boolean;
+	/** When present and not null, contains details of an error. */
+	ErrorMessage?: string;
 }
 
 interface IAuthorizeResponse extends ICommandMessage {

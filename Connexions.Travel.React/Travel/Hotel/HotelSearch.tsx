@@ -310,11 +310,10 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 			SearchOrigin: { Latitude: 36.08, Longitude: -115.152222 },
 			SearchRadiusInKilometers: 48.2803,
 			MinimumRating: 1,
-		}, message => {
-			const response = message as ISearchResponse;
+		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
-				SearchInProgress: !message.RanToCompletion,
+				SearchInProgress: !response.RanToCompletion,
 			});
 
 			if (this.state.SearchTime === 0 && response.FirstPageAvailable) {
@@ -356,6 +355,11 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 				});
 			});
 		};
+
+		let searchError: JSX.Element | undefined;
+		if (!this.state.SearchInProgress && this.state.SearchResponse.ErrorMessage) {
+			searchError = <p>{this.state.SearchResponse.ErrorMessage}</p>;
+		}
 
 		return (
 			<div>
@@ -402,6 +406,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 							<p>Search completed with no results.  Please try relaxing your search criteria.</p>
 							: null
 					}
+					{searchError}
 					<PageList
 						Disabled={this.state.SearchInProgress}
 						PageCount={this.state.SearchResponse.Count / itemsPerPage}
