@@ -105,6 +105,10 @@ namespace Connexions.Travel.Commands.Hotel
 						Array.Resize(ref hotel.images, 20);
 				}
 			}
+			else
+			{
+				this.hotels = new Hotel[0]; //Allows for simpler client-side code if hotels is never null.
+			}
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace Connexions.Travel
 
 				using (var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
 				{
-					if (response.IsSuccessStatusCode == false || response.Content.Headers.ContentType.MediaType != "application/json")
+					if (response.Content.Headers.ContentType.MediaType != "application/json")
 						throw new JsonServiceException(response, await response.Content.ReadAsStringAsync());
 
 					using (var stream = await response.Content.ReadAsStreamAsync())

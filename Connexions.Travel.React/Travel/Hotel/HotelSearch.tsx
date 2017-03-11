@@ -397,6 +397,11 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 									} />) :
 							null
 					}
+					{
+						!!this.state.View && !!this.state.View.hotels && this.state.View.hotels.length == 0 ?
+							<p>Search completed with no results.  Please try relaxing your search criteria.</p>
+							: null
+					}
 					<PageList
 						Disabled={this.state.SearchInProgress}
 						PageCount={this.state.SearchResponse.Count / itemsPerPage}
