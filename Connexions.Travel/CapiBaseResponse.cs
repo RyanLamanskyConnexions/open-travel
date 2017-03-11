@@ -9,7 +9,7 @@ namespace Connexions.Travel
 	class CapiBaseResponse : IHttpResponseHeaders
 	{
 		/// <summary>
-		/// Only populated when an error occurs, a pre-defined error code.
+		/// Only populated when an error occurs, a predefined error code.
 		/// </summary>
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public string code { get; set; }

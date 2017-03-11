@@ -7,7 +7,7 @@ using System.Xml.Linq;
 namespace Connexions.Travel
 {
 	/// <summary>
-	/// Encapsulates errors that occurr during a call to a JSON service.
+	/// Encapsulates errors that occur during a call to a JSON service.
 	/// </summary>
 	[JsonObject(MemberSerialization = MemberSerialization.OptOut)]
 	public class JsonServiceException : Exception

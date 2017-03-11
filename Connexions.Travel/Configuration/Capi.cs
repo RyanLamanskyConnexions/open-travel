@@ -16,7 +16,7 @@
 		public const string TenantId = "Demo";
 
 		/// <summary>
-		/// Teh POS ID parameter.
+		/// The POS ID parameter.
 		/// </summary>
 		public const string PosId = "101";
 	}
