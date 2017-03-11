@@ -12,6 +12,13 @@ namespace Connexions.Travel
 {
 	class CapiClient : ICapiClient
 	{
+		private readonly Configuration.IServiceResolver resolver;
+
+		public CapiClient(Configuration.IServiceResolver resolver)
+		{
+			this.resolver = resolver;
+		}
+
 		/// <summary>
 		/// Thread safe as long as settings aren't changed.
 		/// </summary>
@@ -19,11 +26,13 @@ namespace Connexions.Travel
 
 		async Task<T> ICapiClient.PostAsync<T>(string path, object body, CancellationToken cancellationToken)
 		{
-			using (var message = new HttpRequestMessage(HttpMethod.Post, Configuration.Capi.Url + path))
+			var service = this.resolver.GetServiceForRequest(path);
+
+			using (var message = new HttpRequestMessage(HttpMethod.Post, service.Url + path))
 			using (var client = new HttpClient(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip }))
 			{
 				message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-				message.Headers.Add("oski-tenantId", Configuration.Capi.TenantId);
+				message.Headers.Add("oski-tenantId", service.TenantId);
 				message.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
 				using (var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, cancellationToken))

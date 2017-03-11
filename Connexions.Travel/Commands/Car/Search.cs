@@ -47,10 +47,12 @@ namespace Connexions.Travel.Commands.Car
 			var response = new SearchResponse { Sequence = Sequence };
 			const string basePath = "car/v1.0/search/";
 			var capi = session.GetService<ICapiClient>();
+			var service = session.GetService<Configuration.IServiceResolver>();
+
 			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", new
 			{
 				currency = this.Currency,
-				posId = Configuration.Capi.PosId,
+				posId = service.GetServiceForRequest(basePath).PosId,
 				criteria = new
 				{
 					pickup = new

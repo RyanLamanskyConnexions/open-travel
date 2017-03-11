@@ -148,11 +148,12 @@ namespace Connexions.Travel.Commands.Hotel
 			var response = new SearchResponse { Sequence = Sequence };
 			const string basePath = "hotel/v1.0/";
 			var capi = session.GetService<ICapiClient>();
+			var service = session.GetService<Configuration.IServiceResolver>();
 
 			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "rooms/search/init/stateless", new
 			{
 				currency = Currency,
-				posId = Configuration.Capi.PosId,
+				posId = service.GetServiceForRequest(basePath).PosId,
 				roomOccupancies = new[]
 				{
 					new
