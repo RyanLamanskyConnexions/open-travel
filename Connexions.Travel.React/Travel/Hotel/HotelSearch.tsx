@@ -362,7 +362,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 		}
 
 		return (
-			<div>
+			<div className="HotelSearch">
 				<h3>Hotel Search</h3>
 				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>

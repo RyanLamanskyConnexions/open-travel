@@ -126,7 +126,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 		}
 
 		return (
-			<div>
+			<div className="CarSearch">
 				<h3>Car Search</h3>
 				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>

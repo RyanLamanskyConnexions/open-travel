@@ -9,8 +9,19 @@ interface IResult extends Session.ISessionProperty {
 
 export default class Result extends React.Component<IResult, void> {
 	render() {
+		const vehicle = this.props.Vehicle;
+
+		const size1xw = 195, size1xh = 90;
+		const url1x = "/ImageProcessor/Resize?m=Fit&w=" + size1xw + "&h=" + size1xh + "&u=" + encodeURIComponent(vehicle.images[0]);
+		const thumb = (
+			<figure className="Thumbnail">
+				<img src={url1x} />
+			</figure>
+		);
+
 		return (
 			<div>
+				{thumb}
 				<span>{this.props.Vehicle.name}</span>
 			</div>
 		);
