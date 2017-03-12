@@ -19,12 +19,12 @@ namespace Connexions.Travel.StaticData
 		public string Name { get; }
 
 		/// <summary>
-		/// The latitude portion of thie airport's coordinates.
+		/// The latitude portion of the airport's coordinates.
 		/// </summary>
 		public double Latitude { get; }
 
 		/// <summary>
-		/// The longitude portion of thie airport's coordinates.
+		/// The longitude portion of the airport's coordinates.
 		/// </summary>
 		public double Longitude { get; }
 
@@ -33,8 +33,8 @@ namespace Connexions.Travel.StaticData
 		/// </summary>
 		/// <param name="iataCode">3-letter code assigned by the International Air Transport Association.</param>
 		/// <param name="name">The English-language name of the airport.</param>
-		/// <param name="latitude">The latitude portion of thie airport's coordinates.</param>
-		/// <param name="longitude">The longitude portion of thie airport's coordinates.</param>
+		/// <param name="latitude">The latitude portion of the airport's coordinates.</param>
+		/// <param name="longitude">The longitude portion of the airport's coordinates.</param>
 		public Airport(string iataCode, string name, double latitude, double longitude)
 		{
 			IataCode = iataCode;
@@ -44,7 +44,7 @@ namespace Connexions.Travel.StaticData
 		}
 
 		/// <summary>
-		/// A pre-defined list of notable airports.
+		/// A predefined list of notable airports.
 		/// </summary>
 		public static readonly Airport[] All = new[]
 		{

@@ -139,7 +139,7 @@ ul.Rooms {
 	list-style-type: none;
 }
 
-figure.Thumbnail {
+.HotelSearch figure.Thumbnail {
 	$ThumbnailLength: 170px;
 
 	width: $ThumbnailLength;
@@ -147,6 +147,16 @@ figure.Thumbnail {
 	height: $ThumbnailLength;
 	max-height: $ThumbnailLength;
 	background: rgba(0, 0, 0, 0.7)
+}
+
+.CarSearch figure.Thumbnail {
+	$ThumbnailWidth: 195px;
+	$ThumbnailHeight: 90px;
+
+	width: $ThumbnailWidth;
+	max-width: $ThumbnailWidth;
+	height: $ThumbnailHeight;
+	max-height: $ThumbnailHeight;
 }
 
 div.Checkout {

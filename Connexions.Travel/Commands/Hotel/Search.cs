@@ -55,10 +55,12 @@ namespace Connexions.Travel.Commands.Hotel
 			var response = new SearchResponse { Sequence = Sequence };
 			const string basePath = "hotel/v1.0/search/";
 			var capi = session.GetService<ICapiClient>();
+			var service = session.GetService<Configuration.IServiceResolver>();
+
 			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", new
 			{
 				currency = this.Currency,
-				posId = Configuration.Capi.PosId,
+				posId = service.GetServiceForRequest(basePath).PosId,
 				roomOccupancies = new[]
 					{
 						new
@@ -94,6 +96,14 @@ namespace Connexions.Travel.Commands.Hotel
 				},
 			}, session.CancellationToken);
 
+			if (initializationResponse.sessionId == null)
+			{
+				response.RanToCompletion = true;
+				response.ErrorMessage = initializationResponse.message ?? "Search initialization failed with no message.";
+				await session.SendAsync(response);
+				return;
+			}
+
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
@@ -117,6 +127,8 @@ namespace Connexions.Travel.Commands.Hotel
 				}
 			} while (response.FirstPageAvailable == false);
 
+			const int pageSize = 10;
+
 			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
@@ -130,7 +142,7 @@ namespace Connexions.Travel.Commands.Hotel
 				paging = new
 				{
 					pageNo = 1,
-					pageSize = 10,
+					pageSize = pageSize,
 					orderBy = "price asc",
 				},
 			}, session.CancellationToken);
@@ -138,11 +150,21 @@ namespace Connexions.Travel.Commands.Hotel
 			page.PrepareForClient();
 
 			response.FirstPage = page;
-			await session.SendAsync(response);
-			response.FirstPage = null; //Don't need to send this giant object again.
 
 			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
+
+			if (statusResponse.hotelCount <= pageSize)
+			{
+				//No need for extra work if the full results fit in the first page, finish now.
+				response.FullResultsAvailable = true;
+				response.RanToCompletion = true;
+				await session.SendAsync(response);
+				return;
+			}
+
+			await session.SendAsync(response);
+			response.FirstPage = null; //Don't need to send this giant object again.
 
 			const int fullResultPageSize = 200;
 

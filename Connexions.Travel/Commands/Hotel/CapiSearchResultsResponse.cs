@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using static System.Globalization.CultureInfo;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
@@ -46,8 +45,8 @@ namespace Connexions.Travel.Commands.Hotel
 			{
 				public string url;
 				public string imageCaption;
-				public int? height;
-				public int? width;
+				public double? height;
+				public double? width;
 				public float horizontalResolution;
 				public float verticalResolution;
 
@@ -77,22 +76,12 @@ namespace Connexions.Travel.Commands.Hotel
 
 		public Hotel[] hotels;
 
-		public class Paging
-		{
-			public int totalRecords;
-		}
-
-		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-		public Paging paging;
-
 		/// <summary>
 		/// Removes logging info and organizes/trims data for delivery to a client web browser.
 		/// </summary>
 		public override void PrepareForClient()
 		{
 			base.PrepareForClient();
-
-			this.paging = null;
 
 			if (this.hotels != null)
 			{
@@ -104,6 +93,10 @@ namespace Connexions.Travel.Commands.Hotel
 					if (hotel.images.Length > 20)
 						Array.Resize(ref hotel.images, 20);
 				}
+			}
+			else
+			{
+				this.hotels = new Hotel[0]; //Allows for simpler client-side code if hotels is never null.
 			}
 		}
 	}

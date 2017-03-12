@@ -4,6 +4,7 @@ import * as CarApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
+import Travel from "../Travel";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -13,19 +14,22 @@ interface ISearchResponse extends Session.ICommandMessage {
 	FullResultsAvailable: boolean;
 }
 
-interface ISearchResultViewResponse extends Session.ICommandMessage {
-	cars: CarApi.ICar[];
+interface ISearchResultViewResponse extends Session.ICommandMessage, CarApi.ICapiSearchResultsResponse {
 }
 
 interface ISearchState {
 	SearchInProgress: boolean;
 	SearchResponse: ISearchResponse;
 	SearchTime: number;
-	View: CarApi.ICapiSearchResultsResponse | ISearchResultViewResponse;
+	View?: CarApi.ICapiSearchResultsResponse | ISearchResultViewResponse;
 	PageIndex: number;
 }
 
-export default class CarSearch extends React.Component<Session.ISessionProperty, ISearchState> {
+interface IProperties extends Session.ISessionProperty {
+	Travel: Travel;
+}
+
+export default class CarSearch extends React.Component<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -35,7 +39,6 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 			SearchInProgress: false,
 			SearchResponse: CarSearch.GetBlankSearchResponse(),
 			SearchTime: 0,
-			View: {},
 			PageIndex: 0,
 		};
 	}
@@ -50,13 +53,12 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 		} as ISearchResponse;
 	}
 
-	runSearch() {
+	public RunSearch() {
 		this.searchStarted = performance.now();
 		this.setState({
 			SearchResponse: CarSearch.GetBlankSearchResponse(),
 			SearchInProgress: true,
 			SearchTime: 0,
-			View: {},
 			PageIndex: 0,
 		});
 
@@ -67,12 +69,15 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 			DropOff: Api.CreateInitialDate(32) + "T20:30",
 			PickupAirport: "LAS",
 			DropOffAirport: "LAS",
-		}, message => {
-			const response = message as ISearchResponse;
+		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
-				SearchInProgress: !message.RanToCompletion,
+				SearchInProgress: !response.RanToCompletion,
 			});
+
+			if (response.RanToCompletion) {
+				this.props.Travel.CarSearchCompleted();
+			}
 
 			if (this.state.SearchTime === 0 && response.FirstPageAvailable) {
 				this.setState({
@@ -105,8 +110,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,
-			}, message => {
-				const response = message as ISearchResultViewResponse;
+			}, (response: ISearchResultViewResponse) => {
 				this.setState({
 					View: response,
 					SearchInProgress: false,
@@ -114,11 +118,23 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 			});
 		};
 
+		const results: JSX.Element[] = [];
+		if (!!this.state.View) {
+			for (const carRental of this.state.View.carRentals) {
+				results.push(
+					<Result
+						key={carRental.id}
+						Session={this.props.Session}
+						Car={carRental}
+						Vehicle={this.state.View.vehicles.filter(vehicle => vehicle.refId === carRental.vehicleRefId)[0]}
+					/>
+				);
+			}
+		}
 
 		return (
-			<div>
+			<div className="CarSearch">
 				<h3>Car Search</h3>
-				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>
 					<h4>Status</h4>
 					<dl>
@@ -143,11 +159,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 							PageIndex={this.state.PageIndex}
 							ChangePage={pageChange}
 						/>
-						{
-							!!this.state.View && !!this.state.View.cars ?
-								this.state.View.cars.map(car => <Result Session={this.props.Session} Car={car} key={car.id} />) :
-								<div></div>
-						}
+						{results}
 						<PageList
 							Disabled={this.state.SearchInProgress}
 							PageCount={this.state.SearchResponse.Count / itemsPerPage}

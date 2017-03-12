@@ -57,7 +57,7 @@ namespace Connexions.Travel.Html
 		public bool ShouldSerializeAttributes() => Attributes?.Count > 0;
 
 		/// <summary>
-		/// Element names not on this list have not been evaluted for script or style risks.
+		/// Element names not on this list have not been evaluated for script or style risks.
 		/// </summary>
 		private static readonly HashSet<string> whiteList = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
