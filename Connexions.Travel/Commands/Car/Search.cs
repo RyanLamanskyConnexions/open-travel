@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 
 #pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
@@ -76,6 +78,14 @@ namespace Connexions.Travel.Commands.Car
 				}
 			}, session.CancellationToken);
 
+			if (initializationResponse.sessionId == null)
+			{
+				response.RanToCompletion = true;
+				response.ErrorMessage = initializationResponse.message ?? "Search initialization failed with no message.";
+				await session.SendAsync(response);
+				return;
+			}
+
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
@@ -98,6 +108,81 @@ namespace Connexions.Travel.Commands.Car
 					await session.SendAsync(response);
 				}
 			} while (response.FirstPageAvailable == false);
+
+			const int pageSize = 10;
+
+			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+			{
+				sessionId = initializationResponse.sessionId,
+				currency = this.Currency,
+				contentPrefs = new[]
+				{
+					"all",
+				},
+				paging = new
+				{
+					pageNo = 1,
+					pageSize = pageSize,
+					orderBy = "price asc",
+				},
+			}, session.CancellationToken);
+
+			page.PrepareForClient();
+
+			response.FirstPage = page;
+
+			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
+			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
+
+			if (statusResponse.resultsCount <= pageSize)
+			{
+				//No need for extra work if the full results fit in the first page, finish now.
+				response.FullResultsAvailable = true;
+				response.RanToCompletion = true;
+				await session.SendAsync(response);
+				return;
+			}
+
+			await session.SendAsync(response);
+			response.FirstPage = null; //Don't need to send this giant object again.
+
+			const int fullResultPageSize = 200;
+
+			var fullResultPages = await Task.WhenAll(Enumerable
+				.Range(1, statusResponse.resultsCount / fullResultPageSize + (statusResponse.resultsCount % fullResultPageSize != 0 ? 1 : 0))
+				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+				{
+					sessionId = initializationResponse.sessionId,
+					currency = this.Currency,
+					contentPrefs = new[]
+					{
+						"all",
+					},
+					paging = new
+					{
+						pageNo = pageNumber,
+						pageSize = fullResultPageSize,
+						orderBy = "price asc",
+					},
+				}, session.CancellationToken).ContinueWith(task =>
+				{
+					task.Result.PrepareForClient();
+					return task.Result;
+				})
+				));
+
+			var fullResults = new CapiSearchResultsResponse
+			{
+				carRentals = fullResultPages
+				.SelectMany(fullResultPage => fullResultPage.carRentals)
+				.ToArray(),
+			};
+
+			searchesBySession[initializationResponse.sessionId] = fullResults;
+
+			response.FullResultsAvailable = true;
+			response.RanToCompletion = true;
+			await session.SendAsync(response);
 		}
 	}
 }

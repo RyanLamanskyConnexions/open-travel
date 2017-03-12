@@ -77,22 +77,12 @@ namespace Connexions.Travel.Commands.Hotel
 
 		public Hotel[] hotels;
 
-		public class Paging
-		{
-			public int totalRecords;
-		}
-
-		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-		public Paging paging;
-
 		/// <summary>
 		/// Removes logging info and organizes/trims data for delivery to a client web browser.
 		/// </summary>
 		public override void PrepareForClient()
 		{
 			base.PrepareForClient();
-
-			this.paging = null;
 
 			if (this.hotels != null)
 			{
