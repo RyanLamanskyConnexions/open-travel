@@ -201,6 +201,8 @@ namespace Connexions.Travel.Commands.Car
 					public string postalCode;
 				}
 
+				public Address address;
+
 				public string email;
 
 				public class Phone
@@ -213,6 +215,8 @@ namespace Connexions.Travel.Commands.Car
 
 				public Phone[] phones;
 			}
+
+			public ContactInfo contactInfo;
 		}
 
 		public RentalLocation[] rentalLocations;

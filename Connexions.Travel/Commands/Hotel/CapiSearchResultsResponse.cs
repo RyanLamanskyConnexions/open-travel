@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using static System.Globalization.CultureInfo;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
