@@ -121,12 +121,22 @@ namespace Connexions.Travel.ImageProcessor
 				try
 				{
 					using (var client = new HttpClient())
-					using (var response = await client.GetAsync(url))
 					{
-						raw = new File(
-							response.Content.Headers.ContentType.MediaType,
-							await response.Content.ReadAsByteArrayAsync()
-							);
+						client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393");
+
+						using (var response = await client.GetAsync(url))
+						{
+							if (!response.IsSuccessStatusCode)
+							{
+								context.Response.StatusCode = 404;
+								return;
+							}
+
+							raw = new File(
+								response.Content.Headers.ContentType.MediaType,
+								await response.Content.ReadAsByteArrayAsync()
+								);
+						}
 					}
 				}
 				catch (TaskCanceledException) //client.Timeout can trigger this.
@@ -181,10 +191,6 @@ namespace Connexions.Travel.ImageProcessor
 							var scale = Math.Max(maxWidth / (float)sourceWidth, maxHeight / (float)sourceHeight);
 							var destY = (maxHeight - sourceHeight * scale) / 2;
 							var destX = (maxWidth - sourceWidth * scale) / 2;
-
-							if (scale > 1)
-								scale = 1;
-
 							var width = (int)Math.Round(sourceWidth * scale);
 							var height = (int)Math.Round(sourceHeight * scale);
 
@@ -203,7 +209,7 @@ namespace Connexions.Travel.ImageProcessor
 
 		static File Render(int width, int height, Bitmap image, Rectangle destRect)
 		{
-			using (var destImage = new Bitmap(width, height))
+			using (var destImage = new Bitmap(width, height, image.PixelFormat))
 			{
 				destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
@@ -221,12 +227,20 @@ namespace Connexions.Travel.ImageProcessor
 				}
 
 				using (var resizedBytes = new MemoryStream())
-				using (var encoderParams = new EncoderParameters(1))
-				using (var encoderParam = new EncoderParameter(Encoder.Quality, 95L))
 				{
-					encoderParams.Param[0] = encoderParam;
-					destImage.Save(resizedBytes, jpgEncoder, encoderParams);
-					return new File("image/jpeg", resizedBytes.ToArray());
+					if ((image.PixelFormat & PixelFormat.Alpha) != 0)
+					{
+						destImage.Save(resizedBytes, ImageFormat.Png);
+						return new File("image/png", resizedBytes.ToArray());
+					}
+
+					using (var encoderParams = new EncoderParameters(1))
+					using (var encoderParam = new EncoderParameter(Encoder.Quality, 95L))
+					{
+						encoderParams.Param[0] = encoderParam;
+						destImage.Save(resizedBytes, jpgEncoder, encoderParams);
+						return new File("image/jpeg", resizedBytes.ToArray());
+					}
 				}
 			} //end using destImage
 		}
