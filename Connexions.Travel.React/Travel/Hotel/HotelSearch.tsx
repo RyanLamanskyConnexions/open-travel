@@ -6,6 +6,7 @@ import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
 import * as Category from "../../Commerce/Category";
+import Travel from "../Travel";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -20,7 +21,7 @@ interface ISearchResultViewResponse extends Session.ICommandMessage {
 }
 
 interface IProperties extends Session.ISessionProperty {
-	Category: HotelCategory;
+	Travel: Travel;
 }
 
 interface ISearchState {
@@ -291,7 +292,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 		} as ISearchResponse;
 	}
 
-	runSearch() {
+	public RunSearch() {
 		this.searchStarted = performance.now();
 		this.setState({
 			SearchResponse: HotelSearch.GetBlankSearchResponse(),
@@ -315,6 +316,10 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 				SearchResponse: response,
 				SearchInProgress: !response.RanToCompletion,
 			});
+
+			if (response.RanToCompletion) {
+				this.props.Travel.HotelSearchCompleted();
+			}
 
 			if (this.state.SearchTime === 0 && response.FirstPageAvailable) {
 				this.setState({
@@ -347,8 +352,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,
-			}, message => {
-				const response = message as ISearchResultViewResponse;
+			}, (response: ISearchResultViewResponse) => {
 				this.setState({
 					View: response,
 					SearchInProgress: false,
@@ -364,7 +368,6 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 		return (
 			<div className="HotelSearch">
 				<h3>Hotel Search</h3>
-				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>
 					<h4>Status</h4>
 					<dl>
@@ -395,7 +398,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 							this.state.View.hotels.map(hotel =>
 								<Result
 									Session={this.props.Session}
-									Category={this.props.Category}
+									Category={this.props.Travel.props.HotelCategory}
 									Hotel={hotel}
 									key={hotel.id
 									} />) :

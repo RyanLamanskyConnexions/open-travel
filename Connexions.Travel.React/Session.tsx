@@ -28,7 +28,14 @@ export interface ICommandMessage {
 
 interface IAuthorizeResponse extends ICommandMessage {
 	/** Returning a predetermined list airports as part of the authorization response is a placeholder until an autocomplete source is available. */
-	KnownAirports: any[];
+	KnownAirports: IAirport[];
+}
+
+interface IAirport {
+	IataCode: string;
+	Name: string;
+	Latitude: number;
+	Longitude: number;
 }
 
 /** Contains a Session property for the session management services. */

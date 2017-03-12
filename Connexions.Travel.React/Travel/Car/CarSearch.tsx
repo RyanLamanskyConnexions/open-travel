@@ -4,6 +4,7 @@ import * as CarApi from "./Api";
 import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
+import Travel from "../Travel";
 
 interface ISearchResponse extends Session.ICommandMessage {
 	SessionId: string;
@@ -24,7 +25,11 @@ interface ISearchState {
 	PageIndex: number;
 }
 
-export default class CarSearch extends React.Component<Session.ISessionProperty, ISearchState> {
+interface IProperties extends Session.ISessionProperty {
+	Travel: Travel;
+}
+
+export default class CarSearch extends React.Component<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -48,7 +53,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 		} as ISearchResponse;
 	}
 
-	runSearch() {
+	public RunSearch() {
 		this.searchStarted = performance.now();
 		this.setState({
 			SearchResponse: CarSearch.GetBlankSearchResponse(),
@@ -64,12 +69,15 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 			DropOff: Api.CreateInitialDate(32) + "T20:30",
 			PickupAirport: "LAS",
 			DropOffAirport: "LAS",
-		}, message => {
-			const response = message as ISearchResponse;
+		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
-				SearchInProgress: !message.RanToCompletion,
+				SearchInProgress: !response.RanToCompletion,
 			});
+
+			if (response.RanToCompletion) {
+				this.props.Travel.CarSearchCompleted();
+			}
 
 			if (this.state.SearchTime === 0 && response.FirstPageAvailable) {
 				this.setState({
@@ -102,8 +110,7 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 				SessionId: this.state.SearchResponse.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,
-			}, message => {
-				const response = message as ISearchResultViewResponse;
+			}, (response: ISearchResultViewResponse) => {
 				this.setState({
 					View: response,
 					SearchInProgress: false,
@@ -128,7 +135,6 @@ export default class CarSearch extends React.Component<Session.ISessionProperty,
 		return (
 			<div className="CarSearch">
 				<h3>Car Search</h3>
-				<button disabled={this.state.SearchInProgress} onClick={() => this.runSearch()}>Search</button>
 				<div>
 					<h4>Status</h4>
 					<dl>
