@@ -10,7 +10,7 @@ interface ITravelProperties extends Session.ISessionProperty {
 }
 
 interface IState {
-	Destination: string;
+	Destination: Session.IAirport;
 	HotelSearchInProgress: boolean;
 	CarSearchInProgress: boolean;
 }
@@ -19,11 +19,11 @@ export default class Travel extends React.Component<ITravelProperties, IState> {
 	private HotelSearch: HotelSearch;
 	private CarSearch: CarSearch;
 
-	constructor() {
-		super();
+	constructor(props: ITravelProperties) {
+		super(props);
 
 		this.state = {
-			Destination: "LAS",
+			Destination: props.Session.state.KnownAirportsByCode["LAS"],
 			HotelSearchInProgress: false,
 			CarSearchInProgress: false,
 		};
@@ -58,6 +58,14 @@ export default class Travel extends React.Component<ITravelProperties, IState> {
 			;
 
 		const showClass = this.props.Show ? "Show" : "";
+		const airports: Session.IAirport[] = [];
+		{
+			const knownAirportsByCode = this.props.Session.state.KnownAirportsByCode;
+			for (var key in knownAirportsByCode) {
+				airports.push(knownAirportsByCode[key]);
+			}
+		}
+
 		return (
 			<div className={`Travel ${showClass}`}>
 				<h2>Travel</h2>
@@ -65,11 +73,11 @@ export default class Travel extends React.Component<ITravelProperties, IState> {
 					<span>Destination</span>
 					<select
 						disabled={searchInProgress}
-						value={this.state.Destination}
-						onChange={event => this.setState({ Destination: event.target.value })}
+						value={this.state.Destination.IataCode}
+						onChange={event => this.setState({ Destination: this.props.Session.state.KnownAirportsByCode[event.target.value] })}
 					>
 						{
-							this.props.Session.state.KnownAirports.map(airport => {
+							airports.map(airport => {
 								return (
 									<option
 										value={airport.IataCode}

@@ -4,6 +4,7 @@ import ShoppingCart from "./Commerce/ShoppingCart"
 import * as Category from "./Commerce/Category"
 import Checkout from "./Commerce/Checkout"
 import * as HotelSearch from "./Travel/Hotel/HotelSearch";
+import * as Common from "./Common/Objects";
 
 export const enum View {
 	Main,
@@ -12,7 +13,7 @@ export const enum View {
 
 interface ISessionState {
 	SocketStatus: string;
-	KnownAirports: any[];
+	KnownAirportsByCode: Common.IStringDictionary<IAirport>;
 	View: View;
 }
 
@@ -31,10 +32,15 @@ interface IAuthorizeResponse extends ICommandMessage {
 	KnownAirports: IAirport[];
 }
 
-interface IAirport {
+/** Encapsulates basic information about an airport. */
+export interface IAirport {
+	/** 3-letter code assigned by the International Air Transport Association. */
 	IataCode: string;
+	/** The English-language name of the airport. */
 	Name: string;
+	/** The latitude portion of the airport's coordinates. */
 	Latitude: number;
+	/** The longitude portion of the airport's coordinates. */
 	Longitude: number;
 }
 
@@ -59,7 +65,7 @@ export default class Session extends React.Component<void, ISessionState> {
 
 		this.state = {
 			SocketStatus: "None",
-			KnownAirports: [],
+			KnownAirportsByCode: {},
 			View: View.Main,
 		};
 		this.commandNumber = 0;
@@ -92,10 +98,13 @@ export default class Session extends React.Component<void, ISessionState> {
 			component.SetSocketStatus("Connected.");
 			component.WebSocketCommand({
 				"$type": "Connexions.Travel.Commands.Authorize, Connexions.Travel",
-			}, message => {
-				const response = message as IAuthorizeResponse;
+			}, (response: IAuthorizeResponse) => {
+				const knownAirportsByCode: Common.IStringDictionary<IAirport> = {};
+				for (var airport of response.KnownAirports)
+					knownAirportsByCode[airport.IataCode] = airport;
+
 				this.setState({
-					KnownAirports: response.KnownAirports,
+					KnownAirportsByCode: knownAirportsByCode,
 				});
 			});
 		};
@@ -143,24 +152,36 @@ export default class Session extends React.Component<void, ISessionState> {
 	}
 
 	render() {
+		let authenticatedContent: JSX.Element;
+		if (this.state.KnownAirportsByCode["LAS"]) {
+			authenticatedContent = (
+				<div>
+					<ShoppingCart
+						ref={ref => this.Cart = ref}
+						Session={this}
+						Categories={this.Categories}
+					/>
+					<Travel
+						ref={ref => this.Travel = ref}
+						Session={this}
+						Show={this.state.View === View.Main}
+						HotelCategory={this.HotelCategory}
+					/>
+					<Checkout
+						Session={this}
+						Show={this.state.View === View.Checkout}
+					/>
+				</div>
+				);
+		}
+		else {
+			authenticatedContent = <p>Authenticating...</p>
+		}
+
 		return (
 			<div>
 				<h1>Connexions Open Travel</h1>
-				<ShoppingCart
-					ref={ref => this.Cart = ref}
-					Session={this}
-					Categories={this.Categories}
-				/>
-				<Travel
-					ref={ref => this.Travel = ref}
-					Session={this}
-					Show={this.state.View === View.Main}
-					HotelCategory={this.HotelCategory}
-				/>
-				<Checkout
-					Session={this}
-					Show={this.state.View === View.Checkout}
-				/>
+				{authenticatedContent}
 				<p>Session Status: <span>{this.state.SocketStatus}</span></p>
 			</div >
 		);

@@ -308,7 +308,10 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 			Occupants: [{ Age: 25 }, { Age: 26 }],
 			CheckInDate: Api.CreateInitialDate(30),
 			CheckOutDate: Api.CreateInitialDate(32),
-			SearchOrigin: { Latitude: 36.08, Longitude: -115.152222 },
+			SearchOrigin: {
+				Latitude: this.props.Travel.state.Destination.Latitude,
+				Longitude: this.props.Travel.state.Destination.Longitude,
+			},
 			SearchRadiusInKilometers: 48.2803,
 			MinimumRating: 1,
 		}, (response: ISearchResponse) => {
@@ -405,9 +408,10 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 							null
 					}
 					{
-						!!this.state.View && !!this.state.View.hotels && this.state.View.hotels.length == 0 ?
-							<p>Search completed with no results.  Please try relaxing your search criteria.</p>
-							: null
+						!!this.state.View &&
+						!!this.state.View.hotels &&
+						this.state.View.hotels.length == 0 &&
+						<p>Search completed with no results.</p>
 					}
 					{searchError}
 					<PageList
