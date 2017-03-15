@@ -176,6 +176,24 @@ namespace Connexions.Travel.Commands.Car
 				carRentals = fullResultPages
 				.SelectMany(fullResultPage => fullResultPage.carRentals)
 				.ToArray(),
+
+				rentalLocations = fullResultPages
+				.SelectMany(fullResultPage => fullResultPage.rentalLocations)
+				.GroupBy(rentalLocation => rentalLocation.id)
+				.Select(group => group.First())
+				.ToArray(),
+
+				vehicles = fullResultPages
+				.SelectMany(fullResultPage => fullResultPage.vehicles)
+				.GroupBy(vehicle => vehicle.refId)
+				.Select(group => group.First())
+				.ToArray(),
+
+				vendors = fullResultPages
+				.SelectMany(fullResultPage => fullResultPage.vendors)
+				.GroupBy(vendor => vendor.code)
+				.Select(group => group.First())
+				.ToArray(),
 			};
 
 			searchesBySession[initializationResponse.sessionId] = fullResults;
