@@ -67,8 +67,8 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 			Currency: "USD",
 			Pickup: Api.CreateInitialDate(30) + "T18:30",
 			DropOff: Api.CreateInitialDate(32) + "T20:30",
-			PickupAirport: "LAS",
-			DropOffAirport: "LAS",
+			PickupAirport: this.props.Travel.state.Destination.IataCode,
+			DropOffAirport: this.props.Travel.state.Destination.IataCode,
 		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
