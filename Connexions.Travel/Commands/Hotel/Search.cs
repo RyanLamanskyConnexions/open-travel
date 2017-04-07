@@ -10,27 +10,62 @@ namespace Connexions.Travel.Commands.Hotel
 {
 	class Search : Message, ICommand
 	{
-		public string Currency;
-
-		public class Occupant
+		public class CapiSearchRequest
 		{
-			/// <summary>
-			/// The age of the occupant in years.
-			/// </summary>
-			public int Age;
+			public string currency;
+			public string posId;
+
+			public class RoomOccupancy
+			{
+				public class Occupant
+				{
+					public string type;
+					public int age;
+				}
+
+				public Occupant[] occupants;
+			}
+
+			public RoomOccupancy[] roomOccupancies;
+
+			public class StayPeriod
+			{
+				public string start;
+				public string end;
+			}
+
+			public StayPeriod stayPeriod;
+			public string travellerCountryCodeOfResidence;
+			public string travellerNationalityCode;
+
+			public class Bounds
+			{
+				public class Circle
+				{
+					public class Center
+					{
+						public double lat;
+						public double @long;
+					}
+
+					public Center center;
+					public double radiusKm;
+				}
+
+				public Circle circle;
+			}
+
+			public Bounds bounds;
+
+			public class Filters
+			{
+				public double minHotelRating;
+			}
+
+			public Filters filters;
 		}
 
-		public Occupant[] Occupants;
-
-		public DateTime CheckInDate;
-
-		public DateTime CheckOutDate;
-
-		public Geocode SearchOrigin;
-
-		public double SearchRadiusInKilometers;
-
-		public int MinimumRating;
+		public CapiSearchRequest Request;
 
 		class CapiSearchStatusResponse : CapiStatusResponse
 		{
@@ -57,44 +92,8 @@ namespace Connexions.Travel.Commands.Hotel
 			var capi = session.GetService<ICapiClient>();
 			var service = session.GetService<Configuration.IServiceResolver>();
 
-			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", new
-			{
-				currency = this.Currency,
-				posId = service.GetServiceForRequest(basePath).PosId,
-				roomOccupancies = new[]
-					{
-						new
-						{
-							occupants = this
-							.Occupants
-							.Select(o => new { type = o.Age > 18 ? "adult" : "child", age = o.Age })
-							.ToArray()
-						},
-					},
-				stayPeriod = new
-				{
-					start = this.CheckInDate.ToIso8601Date(),
-					end = this.CheckOutDate.ToIso8601Date(),
-				},
-				travellerCountryCodeOfResidence = session.CountryOfResidence,
-				travellerNationalityCode = session.Nationality,
-				bounds = new
-				{
-					circle = new
-					{
-						center = new
-						{
-							lat = this.SearchOrigin.Latitude,
-							@long = this.SearchOrigin.Longitude,
-						},
-						radiusKm = this.SearchRadiusInKilometers,
-					}
-				},
-				filters = new
-				{
-					minHotelRating = this.MinimumRating,
-				},
-			}, session.CancellationToken);
+			this.Request.posId = service.GetServiceForRequest(basePath).PosId;
+			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", this.Request, session.CancellationToken);
 
 			if (initializationResponse.sessionId == null)
 			{
@@ -132,7 +131,7 @@ namespace Connexions.Travel.Commands.Hotel
 			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
-				currency = this.Currency,
+				currency = this.Request.currency,
 				contentPrefs = new[]
 				{
 					"basic",
@@ -173,7 +172,7 @@ namespace Connexions.Travel.Commands.Hotel
 				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
 				{
 					sessionId = initializationResponse.sessionId,
-					currency = this.Currency,
+					currency = this.Request.currency,
 					contentPrefs = new[]
 					{
 						"basic",

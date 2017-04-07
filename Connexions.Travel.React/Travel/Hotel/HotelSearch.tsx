@@ -304,16 +304,37 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 
 		this.props.Session.WebSocketCommand({
 			"$type": "Connexions.Travel.Commands.Hotel.Search, Connexions.Travel",
-			Currency: "USD",
-			Occupants: [{ Age: 25 }, { Age: 26 }],
-			CheckInDate: Api.CreateInitialDate(30),
-			CheckOutDate: Api.CreateInitialDate(32),
-			SearchOrigin: {
-				Latitude: this.props.Travel.state.Destination.Latitude,
-				Longitude: this.props.Travel.state.Destination.Longitude,
+			Request: {
+				currency: "USD",
+				roomOccupancies: [{
+					occupants: [{
+						type: "adult",
+						age: 25,
+					}, {
+						type: "adult",
+						age: 26,
+					},
+					],
+				}],
+				stayPeriod: {
+					start: Api.CreateInitialDate(30),
+					end: Api.CreateInitialDate(32),
+				},
+				travellerCountryCodeOfResidence: "US",
+				travellerNationalityCode: "US",
+				bounds: {
+					circle: {
+						center: {
+							lat: this.props.Travel.state.Destination.Latitude,
+							long: this.props.Travel.state.Destination.Longitude,
+						},
+						radiusKm: 48.2803,
+					},
+				},
+				filters: {
+					minHotelRating: 1,
+				},
 			},
-			SearchRadiusInKilometers: 48.2803,
-			MinimumRating: 1,
 		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
