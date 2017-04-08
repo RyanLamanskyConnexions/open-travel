@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Image = Connexions.Travel.Commands.Hotel.CapiSearchResultsResponse.Hotel.Image;
+using Image = Connexions.Travel.Capi.Hotel.SearchResultsResponse.Hotel.Image;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi.Hotel;
+
 	[TestClass]
 	public class ImageComparerTests
 	{

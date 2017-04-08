@@ -1,9 +1,9 @@
-﻿namespace Connexions.Travel
+﻿namespace Connexions.Travel.Capi
 {
 	/// <summary>
 	/// The common format shared by the various CAPI status calls.
 	/// </summary>
-	class CapiStatusResponse : CapiBaseResponse
+	class StatusResponse : BaseResponse
 	{
 		/// <summary>
 		/// A value of "Complete" indicates completion, otherwise the search is still underway.

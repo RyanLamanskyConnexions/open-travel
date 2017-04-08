@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi;
+	using Capi.Hotel;
+
 	class Rooms : Message, ICommand
 	{
-		class CapiSearchStatusResponse : CapiStatusResponse
+		class CapiSearchStatusResponse : StatusResponse
 		{
 			/// <summary>
 			/// Total count of hotel results so far.
@@ -18,7 +21,7 @@ namespace Connexions.Travel.Commands.Hotel
 			public int roomCount;
 		}
 
-		class CapiRoomSearchResultsResponse : CapiBaseResponse
+		class CapiRoomSearchResultsResponse : BaseResponse
 		{
 			public class Room
 			{
@@ -150,7 +153,7 @@ namespace Connexions.Travel.Commands.Hotel
 			var capi = session.GetService<ICapiClient>();
 			var service = session.GetService<Configuration.IServiceResolver>();
 
-			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "rooms/search/init/stateless", new
+			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "rooms/search/init/stateless", new
 			{
 				currency = Currency,
 				posId = service.GetServiceForRequest(basePath).PosId,

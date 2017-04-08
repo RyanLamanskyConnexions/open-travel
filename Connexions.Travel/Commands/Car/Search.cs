@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Connexions.Travel.Commands.Car
 {
+	using Capi;
+	using Capi.Car;
+
 	class Search : Message, ICommand
 	{
 		public string Currency;
@@ -24,11 +27,11 @@ namespace Connexions.Travel.Commands.Car
 			public string SessionId;
 			public int Count;
 			public bool FirstPageAvailable;
-			public CapiSearchResultsResponse FirstPage;
+			public SearchResultsResponse FirstPage;
 			public bool FullResultsAvailable;
 		}
 
-		class CapiSearchInitResponse : CapiBaseResponse
+		class CapiSearchInitResponse : BaseResponse
 		{
 			/// <summary>
 			/// Oski "sessionId" representing the hotel search.
@@ -36,7 +39,7 @@ namespace Connexions.Travel.Commands.Car
 			public string sessionId;
 		}
 
-		class CapiSearchStatusResponse : CapiStatusResponse
+		class CapiSearchStatusResponse : StatusResponse
 		{
 			/// <summary>
 			/// Total count of car results so far.
@@ -111,7 +114,7 @@ namespace Connexions.Travel.Commands.Car
 
 			const int pageSize = 10;
 
-			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+			var page = await capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
 				currency = this.Currency,
@@ -131,7 +134,7 @@ namespace Connexions.Travel.Commands.Car
 
 			response.FirstPage = page;
 
-			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
+			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, SearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
 
 			if (statusResponse.resultsCount <= pageSize)
@@ -150,7 +153,7 @@ namespace Connexions.Travel.Commands.Car
 
 			var fullResultPages = await Task.WhenAll(Enumerable
 				.Range(1, statusResponse.resultsCount / fullResultPageSize + (statusResponse.resultsCount % fullResultPageSize != 0 ? 1 : 0))
-				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+				.Select(pageNumber => capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 				{
 					sessionId = initializationResponse.sessionId,
 					currency = this.Currency,
@@ -171,7 +174,7 @@ namespace Connexions.Travel.Commands.Car
 				})
 				));
 
-			var fullResults = new CapiSearchResultsResponse
+			var fullResults = new SearchResultsResponse
 			{
 				carRentals = fullResultPages
 				.SelectMany(fullResultPage => fullResultPage.carRentals)

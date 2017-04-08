@@ -8,13 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Connexions.Travel
+namespace Connexions.Travel.Capi
 {
-	class CapiClient : ICapiClient
+	class Client : ICapiClient
 	{
 		private readonly Configuration.IServiceResolver resolver;
 
-		public CapiClient(Configuration.IServiceResolver resolver)
+		public Client(Configuration.IServiceResolver resolver)
 		{
 			this.resolver = resolver;
 		}

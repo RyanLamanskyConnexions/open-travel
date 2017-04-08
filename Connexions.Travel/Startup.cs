@@ -21,7 +21,7 @@ namespace Connexions.Travel
 			services
 				.AddMemoryCache()
 				.AddSingleton<Configuration.IServiceResolver, Configuration.DemoServiceResolver>()
-				.AddSingleton<ICapiClient, CapiClient>()
+				.AddSingleton<ICapiClient, Capi.Client>()
 				;
 		}
 

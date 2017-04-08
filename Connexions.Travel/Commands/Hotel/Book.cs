@@ -5,6 +5,8 @@ using static System.Diagnostics.Debug;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi;
+
 	class Book : Message, ICommand
 	{
 		public class Request
@@ -21,7 +23,7 @@ namespace Connexions.Travel.Commands.Hotel
 				{
 					public string type;
 
-					public CapiName name;
+					public Name name;
 					public int age;
 				}
 
@@ -58,7 +60,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 					public Expiry expiry;
 
-					public CapiContactInfo contactInfo;
+					public ContactInfo contactInfo;
 				}
 
 				public Card[] cards;
@@ -68,8 +70,8 @@ namespace Connexions.Travel.Commands.Hotel
 
 			public class Customer
 			{
-				public CapiName name;
-				public CapiContactInfo contactInfo;
+				public Name name;
+				public ContactInfo contactInfo;
 				public string dob;
 				public string nationality;
 				public string customerId;
@@ -79,8 +81,8 @@ namespace Connexions.Travel.Commands.Hotel
 
 			public class PrimaryGuest
 			{
-				public CapiName name;
-				public CapiContactInfo contactInfo;
+				public Name name;
+				public ContactInfo contactInfo;
 				public int age;
 
 				/// <summary>

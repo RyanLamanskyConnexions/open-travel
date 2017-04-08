@@ -8,6 +8,8 @@ using static System.Diagnostics.Debug;
 
 namespace Connexions.Travel.Commands.Car
 {
+	using Capi.Car;
+
 	/// <summary>
 	/// Changes the view of results based on provided input.
 	/// </summary>
@@ -31,7 +33,7 @@ namespace Connexions.Travel.Commands.Car
 
 		class SearchResultViewResponse : CommandMessage
 		{
-			public SearchResultViewResponse(SearchResultView view, CapiSearchResultsResponse data)
+			public SearchResultViewResponse(SearchResultView view, SearchResultsResponse data)
 				: base(view)
 			{
 				Assert(data != null);
@@ -69,15 +71,15 @@ namespace Connexions.Travel.Commands.Car
 					;
 			}
 
-			public CapiSearchResultsResponse.CarRental[] carRentals;
-			public CapiSearchResultsResponse.RentalLocation[] rentalLocations;
-			public CapiSearchResultsResponse.Vehicle[] vehicles;
-			public CapiSearchResultsResponse.Vendor[] vendors;
+			public SearchResultsResponse.CarRental[] carRentals;
+			public SearchResultsResponse.RentalLocation[] rentalLocations;
+			public SearchResultsResponse.Vehicle[] vehicles;
+			public SearchResultsResponse.Vendor[] vendors;
 		}
 
 		Task ICommand.ExecuteAsync(Session session)
 		{
-			session.TryGet(typeof(Search), out ConcurrentDictionary<String, CapiSearchResultsResponse> dictionary);
+			session.TryGet(typeof(Search), out ConcurrentDictionary<String, SearchResultsResponse> dictionary);
 			var data = dictionary[this.SessionId];
 			return session.SendAsync(new SearchResultViewResponse(this, data));
 		}

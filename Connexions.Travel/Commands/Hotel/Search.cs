@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi;
+	using Capi.Hotel;
+
 	class Search : Message, ICommand
 	{
 		public class CapiSearchRequest
@@ -67,7 +70,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 		public CapiSearchRequest Request;
 
-		class CapiSearchStatusResponse : CapiStatusResponse
+		class CapiSearchStatusResponse : StatusResponse
 		{
 			/// <summary>
 			/// Total count of hotel results so far.
@@ -81,7 +84,7 @@ namespace Connexions.Travel.Commands.Hotel
 			public string SessionId;
 			public int Count;
 			public bool FirstPageAvailable;
-			public CapiSearchResultsResponse FirstPage;
+			public SearchResultsResponse FirstPage;
 			public bool FullResultsAvailable;
 		}
 
@@ -93,7 +96,7 @@ namespace Connexions.Travel.Commands.Hotel
 			var service = session.GetService<Configuration.IServiceResolver>();
 
 			this.Request.posId = service.GetServiceForRequest(basePath).PosId;
-			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", this.Request, session.CancellationToken);
+			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "init", this.Request, session.CancellationToken);
 
 			if (initializationResponse.sessionId == null)
 			{
@@ -128,7 +131,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 			const int pageSize = 10;
 
-			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+			var page = await capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
 				currency = this.Request.currency,
@@ -150,7 +153,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 			response.FirstPage = page;
 
-			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
+			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, SearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
 
 			if (statusResponse.hotelCount <= pageSize)
@@ -169,7 +172,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 			var fullResultPages = await Task.WhenAll(Enumerable
 				.Range(1, statusResponse.hotelCount / fullResultPageSize + (statusResponse.hotelCount % fullResultPageSize != 0 ? 1 : 0))
-				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+				.Select(pageNumber => capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 				{
 					sessionId = initializationResponse.sessionId,
 					currency = this.Request.currency,
@@ -192,7 +195,7 @@ namespace Connexions.Travel.Commands.Hotel
 				})
 				));
 
-			var fullResults = new CapiSearchResultsResponse
+			var fullResults = new SearchResultsResponse
 			{
 				hotels = fullResultPages
 				.SelectMany(fullResultPage => fullResultPage.hotels)

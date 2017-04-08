@@ -1,8 +1,8 @@
-﻿namespace Connexions.Travel
+﻿namespace Connexions.Travel.Capi
 {
-	class CapiContactInfo
+	class ContactInfo
 	{
-		public CapiPhone[] phones;
+		public Phone[] phones;
 
 		public class Address
 		{
