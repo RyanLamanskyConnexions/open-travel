@@ -3,24 +3,13 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
-#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
-
 namespace Connexions.Travel.Commands.Car
 {
-	using Capi;
 	using Capi.Car;
 
 	class Search : Message, ICommand
 	{
-		public string Currency;
-
-		public DateTime Pickup;
-
-		public DateTime DropOff;
-
-		public string PickupAirport;
-
-		public string DropOffAirport;
+		public SearchInitRequest Request;
 
 		class SearchResponse : CommandMessage
 		{
@@ -31,22 +20,6 @@ namespace Connexions.Travel.Commands.Car
 			public bool FullResultsAvailable;
 		}
 
-		class CapiSearchInitResponse : BaseResponse
-		{
-			/// <summary>
-			/// Oski "sessionId" representing the hotel search.
-			/// </summary>
-			public string sessionId;
-		}
-
-		class CapiSearchStatusResponse : StatusResponse
-		{
-			/// <summary>
-			/// Total count of car results so far.
-			/// </summary>
-			public int resultsCount;
-		}
-
 		async Task ICommand.ExecuteAsync(Session session)
 		{
 			var response = new SearchResponse { Sequence = Sequence };
@@ -54,32 +27,8 @@ namespace Connexions.Travel.Commands.Car
 			var capi = session.GetService<ICapiClient>();
 			var service = session.GetService<Configuration.IServiceResolver>();
 
-			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", new
-			{
-				currency = this.Currency,
-				posId = service.GetServiceForRequest(basePath).PosId,
-				criteria = new
-				{
-					pickup = new
-					{
-						airportCode = this.PickupAirport,
-						date = this.Pickup.ToIso8601Date(),
-						time = this.Pickup.ToIso8601Time(),
-					},
-					dropOff = new
-					{
-						sameAsPickup = this.PickupAirport == this.DropOffAirport,
-						airportCode = this.PickupAirport == this.DropOffAirport ? null : this.DropOffAirport,
-						date = this.DropOff.ToIso8601Date(),
-						time = this.DropOff.ToIso8601Time(),
-					},
-					driverInfo = new
-					{
-						age = 25,
-						nationality = session.Nationality,
-					},
-				}
-			}, session.CancellationToken);
+			this.Request.posId = service.GetServiceForRequest(basePath).PosId;
+			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "init", this.Request, session.CancellationToken);
 
 			if (initializationResponse.sessionId == null)
 			{
@@ -92,14 +41,14 @@ namespace Connexions.Travel.Commands.Car
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
-			CapiSearchStatusResponse statusResponse;
+			SearchStatusResponse statusResponse;
 			do
 			{
 				await Task.Delay(250);
 				if (session.CancellationToken.IsCancellationRequested)
 					return;
 
-				statusResponse = await capi.PostAsync<CapiSearchStatusResponse>(
+				statusResponse = await capi.PostAsync<SearchStatusResponse>(
 					basePath + "status",
 					new { sessionId = initializationResponse.sessionId },
 					session.CancellationToken);
@@ -117,7 +66,7 @@ namespace Connexions.Travel.Commands.Car
 			var page = await capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
-				currency = this.Currency,
+				currency = this.Request.currency,
 				contentPrefs = new[]
 				{
 					"all",
@@ -156,7 +105,7 @@ namespace Connexions.Travel.Commands.Car
 				.Select(pageNumber => capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 				{
 					sessionId = initializationResponse.sessionId,
-					currency = this.Currency,
+					currency = this.Request.currency,
 					contentPrefs = new[]
 					{
 						"all",

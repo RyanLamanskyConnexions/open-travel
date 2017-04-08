@@ -64,11 +64,26 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 
 		this.props.Session.WebSocketCommand({
 			"$type": "Connexions.Travel.Commands.Car.Search, Connexions.Travel",
-			Currency: "USD",
-			Pickup: Api.CreateInitialDate(30) + "T18:30",
-			DropOff: Api.CreateInitialDate(32) + "T20:30",
-			PickupAirport: this.props.Travel.state.Destination.IataCode,
-			DropOffAirport: this.props.Travel.state.Destination.IataCode,
+			Request: {
+				currency: "USD",
+				criteria: {
+					pickup: {
+						airportCode: this.props.Travel.state.Destination.IataCode,
+						date: Api.CreateInitialDate(30),
+						time: "18:30",
+					},
+					dropOff: {
+						sameAsPickup: true,
+						//airportCode:,
+						date: Api.CreateInitialDate(32),
+						time: "20:30",
+					},
+					driverInfo: {
+						age: 25,
+						nationality: "US",
+					},
+				},
+			},
 		}, (response: ISearchResponse) => {
 			this.setState({
 				SearchResponse: response,
