@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.IO.Compression;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Connexions.Travel.Tests")]
 
@@ -19,6 +21,8 @@ namespace Connexions.Travel
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
+				.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal)
+				.AddResponseCompression()
 				.AddMemoryCache()
 				.AddSingleton<Configuration.IServiceResolver, Configuration.DemoServiceResolver>()
 				.AddSingleton<ICapiClient, Capi.Client>()
@@ -36,6 +40,7 @@ namespace Connexions.Travel
 				app.UseDeveloperExceptionPage();
 
 			app
+				.UseResponseCompression()
 				.UseDefaultFiles()
 				.UseStaticFiles()
 				.Map("/Session", a => a.UseWebSockets().Use(Session.WebSocketHandlerAsync))
