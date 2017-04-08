@@ -3,81 +3,13 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
-#pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
-#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
-
 namespace Connexions.Travel.Commands.Hotel
 {
-	using Capi;
 	using Capi.Hotel;
 
 	class Search : Message, ICommand
 	{
-		public class CapiSearchRequest
-		{
-			public string currency;
-			public string posId;
-
-			public class RoomOccupancy
-			{
-				public class Occupant
-				{
-					public string type;
-					public int age;
-				}
-
-				public Occupant[] occupants;
-			}
-
-			public RoomOccupancy[] roomOccupancies;
-
-			public class StayPeriod
-			{
-				public string start;
-				public string end;
-			}
-
-			public StayPeriod stayPeriod;
-			public string travellerCountryCodeOfResidence;
-			public string travellerNationalityCode;
-
-			public class Bounds
-			{
-				public class Circle
-				{
-					public class Center
-					{
-						public double lat;
-						public double @long;
-					}
-
-					public Center center;
-					public double radiusKm;
-				}
-
-				public Circle circle;
-			}
-
-			public Bounds bounds;
-
-			public class Filters
-			{
-				public double minHotelRating;
-			}
-
-			public Filters filters;
-		}
-
-		public CapiSearchRequest Request;
-
-		class CapiSearchStatusResponse : StatusResponse
-		{
-			/// <summary>
-			/// Total count of hotel results so far.
-			/// </summary>
-			public int hotelCount;
-		}
-#pragma warning restore
+		public HotelSearchInitRequest Request;
 
 		class SearchResponse : CommandMessage
 		{
@@ -109,14 +41,14 @@ namespace Connexions.Travel.Commands.Hotel
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
-			CapiSearchStatusResponse statusResponse;
+			SearchStatusResponse statusResponse;
 			do
 			{
 				await Task.Delay(250);
 				if (session.CancellationToken.IsCancellationRequested)
 					return;
 
-				statusResponse = await capi.PostAsync<CapiSearchStatusResponse>(
+				statusResponse = await capi.PostAsync<SearchStatusResponse>(
 					basePath + "status",
 					new { sessionId = initializationResponse.sessionId },
 					session.CancellationToken);

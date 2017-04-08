@@ -48,11 +48,29 @@ export default class Result extends React.Component<IResult, IResultState> {
 
 		this.props.Session.WebSocketCommand({
 			"$type": "Connexions.Travel.Commands.Hotel.Rooms, Connexions.Travel",
-			Currency: "USD",
-			Occupants: [{ Age: 25 }, { Age: 26 }],
-			CheckInDate: Api.CreateInitialDate(30),
-			CheckOutDate: Api.CreateInitialDate(32),
-			HotelId: this.props.Hotel.id,
+			Request: {
+				currency: "USD",
+				roomOccupancies: [{
+					occupants: [{
+						type: "adult",
+						age: 25,
+					}, {
+						type: "adult",
+						age: 26,
+					},
+					],
+				}],
+				stayPeriod: {
+					start: Api.CreateInitialDate(30),
+					end: Api.CreateInitialDate(32),
+				},
+				travellerCountryCodeOfResidence: "US",
+				travellerNationalityCode: "US",
+				filters: {
+					minHotelRating: 1,
+				},
+				hotelId: this.props.Hotel.id,
+			}
 		}, message => {
 			const response = message as IRoomSearchResponse;
 			if (response.RanToCompletion) {

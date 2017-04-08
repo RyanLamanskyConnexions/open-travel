@@ -1,149 +1,19 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-#pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
-#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
+﻿using System.Threading.Tasks;
 
 namespace Connexions.Travel.Commands.Hotel
 {
-	using Capi;
 	using Capi.Hotel;
 
 	class Rooms : Message, ICommand
 	{
-		class CapiSearchStatusResponse : StatusResponse
-		{
-			/// <summary>
-			/// Total count of hotel results so far.
-			/// </summary>
-			public int roomCount;
-		}
-
-		class CapiRoomSearchResultsResponse : BaseResponse
-		{
-			public class Room
-			{
-				public string refId;
-				public string name;
-				public string type;
-				public string desc;
-				public string code;
-				public string roomTypeCode;
-				public string smokingIndicator;
-
-				[JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
-				public Html.Parsed[] SanitizedDescription;
-			}
-
-			public class Rate
-			{
-				public class Policy
-				{
-					public string type;
-					public string text;
-				}
-
-				public class BoardBasis
-				{
-					public string desc;
-					public string type;
-				}
-
-				public class Taxes
-				{
-					public string code;
-					public string desc;
-					public decimal amount;
-				}
-
-				public class Fees
-				{
-					public string desc;
-					public decimal amount;
-				}
-
-				public class RateOccupancies
-				{
-					public string roomRefId;
-					public string occupancyRefId;
-				}
-
-				public string refId;
-				public string desc;
-				public bool isPrepaid;
-				public string type;
-				public string supplierId;
-				public string code;
-				public string refundability;
-				public Policy[] policies;
-				public BoardBasis boardBasis;
-				public decimal baseFare;
-				public Taxes[] taxes;
-				public Fees[] fees;
-				public decimal discount;
-				public decimal totalFare;
-				public RateOccupancies[] rateOccupancies;
-			}
-
-			public class Recommendation
-			{
-				public class FareBreakup
-				{
-					public decimal baseFare;
-					public string currency;
-					public decimal totalFare;
-				}
-
-				public FareBreakup fareBreakup;
-				public string id;
-				public string[] rateRefIds;
-			}
-
-			public Room[] rooms;
-
-			public Rate[] rates;
-
-			public Recommendation[] recommendations;
-
-			public override void PrepareForClient()
-			{
-				base.PrepareForClient();
-
-				foreach (var room in rooms)
-				{
-					room.SanitizedDescription = Html.Parser.Parse(room.desc).ToArray();
-					room.desc = null;
-				}
-			}
-		}
-#pragma warning restore
-
-		public string Currency;
-
-		public class Occupant
-		{
-			/// <summary>
-			/// The age of the occupant in years.
-			/// </summary>
-			public int Age;
-		}
-
-		public Occupant[] Occupants;
-
-		public DateTime CheckInDate;
-
-		public DateTime CheckOutDate;
-
-		public string HotelId;
+		public RoomSearchInitRequest Request;
 
 		class SearchResponse : CommandMessage
 		{
 			public string SessionId;
 			public int Count;
 			public bool FullResultsAvailable;
-			public CapiRoomSearchResultsResponse Results;
+			public RoomSearchResultsResponse Results;
 		}
 
 		async Task ICommand.ExecuteAsync(Session session)
@@ -153,46 +23,25 @@ namespace Connexions.Travel.Commands.Hotel
 			var capi = session.GetService<ICapiClient>();
 			var service = session.GetService<Configuration.IServiceResolver>();
 
-			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "rooms/search/init/stateless", new
-			{
-				currency = Currency,
-				posId = service.GetServiceForRequest(basePath).PosId,
-				roomOccupancies = new[]
-				{
-					new
-					{
-						occupants = this
-						.Occupants
-						.Select(o => new { type = o.Age > 18 ? "adult" : "child", age = o.Age })
-						.ToArray()
-					},
-				},
-				stayPeriod = new
-				{
-					start = this.CheckInDate.ToIso8601Date(),
-					end = this.CheckOutDate.ToIso8601Date(),
-				},
-				travellerCountryCodeOfResidence = session.CountryOfResidence,
-				travellerNationalityCode = session.Nationality,
-				hotelId = this.HotelId,
-			}, session.CancellationToken);
+			this.Request.posId = service.GetServiceForRequest(basePath).PosId;
+			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "rooms/search/init/stateless", this.Request, session.CancellationToken);
 
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
-			CapiSearchStatusResponse statusResponse;
+			RoomSearchStatusResponse statusResponse;
 			do
 			{
 				await Task.Delay(250);
 				if (session.CancellationToken.IsCancellationRequested)
 					return;
 
-				statusResponse = await capi.PostAsync<CapiSearchStatusResponse>(
+				statusResponse = await capi.PostAsync<RoomSearchStatusResponse>(
 					basePath + "rooms/search/status",
 					new
 					{
 						sessionId = initializationResponse.sessionId,
-						hotelId = this.HotelId,
+						hotelId = this.Request.hotelId,
 					},
 					session.CancellationToken);
 
@@ -204,10 +53,10 @@ namespace Connexions.Travel.Commands.Hotel
 				}
 			} while (statusResponse.status != "Complete");
 
-			response.Results = await capi.PostAsync<CapiRoomSearchResultsResponse>(basePath + "rooms/search/results", new
+			response.Results = await capi.PostAsync<RoomSearchResultsResponse>(basePath + "rooms/search/results", new
 			{
 				sessionId = initializationResponse.sessionId,
-				hotelId = this.HotelId,
+				hotelId = this.Request.hotelId,
 			}, session.CancellationToken);
 
 			response.Results.PrepareForClient();
