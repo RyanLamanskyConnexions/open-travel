@@ -24,5 +24,11 @@ module.exports = {
 		//These are loaded via CDN in index.html
 		"react": "React",
 		"react-dom": "ReactDOM"
-	}
+	},
+	plugins: [
+		new webpack.optimize.UglifyJsPlugin(
+			{
+				sourceMap: true
+			})
+	]
 };
