@@ -45,8 +45,6 @@ namespace Connexions.Travel.Commands.Car
 			do
 			{
 				await Task.Delay(250);
-				if (session.CancellationToken.IsCancellationRequested)
-					return;
 
 				statusResponse = await capi.PostAsync<SearchStatusResponse>(
 					basePath + "status",

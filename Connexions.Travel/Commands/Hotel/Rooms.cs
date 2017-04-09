@@ -33,8 +33,6 @@ namespace Connexions.Travel.Commands.Hotel
 			do
 			{
 				await Task.Delay(250);
-				if (session.CancellationToken.IsCancellationRequested)
-					return;
 
 				statusResponse = await capi.PostAsync<RoomSearchStatusResponse>(
 					basePath + "rooms/search/status",

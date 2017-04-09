@@ -21,6 +21,8 @@ namespace Connexions.Travel.Capi
 
 		async Task<T> ICapiClient.PostAsync<T>(string path, object body, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			var service = this.resolver.GetServiceForRequest(path);
 
 			using (var message = new HttpRequestMessage(HttpMethod.Post, service.Url + path))
