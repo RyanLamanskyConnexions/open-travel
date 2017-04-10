@@ -1,6 +1,6 @@
-﻿namespace Connexions.Travel
+﻿namespace Connexions.Travel.Capi
 {
-	class CapiName
+	class Name
 	{
 		public string title;
 		public string first;

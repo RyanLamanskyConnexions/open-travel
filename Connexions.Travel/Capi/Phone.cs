@@ -1,6 +1,6 @@
-﻿namespace Connexions.Travel
+﻿namespace Connexions.Travel.Capi
 {
-	class CapiPhone
+	class Phone
 	{
 		public string type;
 		public string num;

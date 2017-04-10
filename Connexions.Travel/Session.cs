@@ -245,8 +245,13 @@ namespace Connexions.Travel
 				{
 					while (socket.State == WebSocketState.Open)
 					{
+						cancellation.Token.ThrowIfCancellationRequested();
+
 						await Task.WhenAny(session.GetOperations());
 					}
+				}
+				catch (OperationCanceledException)
+				{
 				}
 				finally
 				{

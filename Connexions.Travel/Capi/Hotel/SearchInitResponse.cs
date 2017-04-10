@@ -1,6 +1,6 @@
-﻿namespace Connexions.Travel.Commands.Hotel
+﻿namespace Connexions.Travel.Capi.Hotel
 {
-	class CapiSearchInitResponse : CapiBaseResponse
+	class SearchInitResponse : BaseResponse
 	{
 		/// <summary>
 		/// Oski "sessionId" representing the hotel search.

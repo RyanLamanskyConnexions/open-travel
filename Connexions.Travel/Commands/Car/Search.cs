@@ -3,45 +3,21 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
-#pragma warning disable 649 //Fields are more efficient than properties but the C# compiler doesn't recognize that the JSON serializer writes to them.
-
 namespace Connexions.Travel.Commands.Car
 {
+	using Capi.Car;
+
 	class Search : Message, ICommand
 	{
-		public string Currency;
-
-		public DateTime Pickup;
-
-		public DateTime DropOff;
-
-		public string PickupAirport;
-
-		public string DropOffAirport;
+		public SearchInitRequest Request;
 
 		class SearchResponse : CommandMessage
 		{
 			public string SessionId;
 			public int Count;
 			public bool FirstPageAvailable;
-			public CapiSearchResultsResponse FirstPage;
+			public SearchResultsResponse FirstPage;
 			public bool FullResultsAvailable;
-		}
-
-		class CapiSearchInitResponse : CapiBaseResponse
-		{
-			/// <summary>
-			/// Oski "sessionId" representing the hotel search.
-			/// </summary>
-			public string sessionId;
-		}
-
-		class CapiSearchStatusResponse : CapiStatusResponse
-		{
-			/// <summary>
-			/// Total count of car results so far.
-			/// </summary>
-			public int resultsCount;
 		}
 
 		async Task ICommand.ExecuteAsync(Session session)
@@ -51,32 +27,8 @@ namespace Connexions.Travel.Commands.Car
 			var capi = session.GetService<ICapiClient>();
 			var service = session.GetService<Configuration.IServiceResolver>();
 
-			var initializationResponse = await capi.PostAsync<CapiSearchInitResponse>(basePath + "init", new
-			{
-				currency = this.Currency,
-				posId = service.GetServiceForRequest(basePath).PosId,
-				criteria = new
-				{
-					pickup = new
-					{
-						airportCode = this.PickupAirport,
-						date = this.Pickup.ToIso8601Date(),
-						time = this.Pickup.ToIso8601Time(),
-					},
-					dropOff = new
-					{
-						sameAsPickup = this.PickupAirport == this.DropOffAirport,
-						airportCode = this.PickupAirport == this.DropOffAirport ? null : this.DropOffAirport,
-						date = this.DropOff.ToIso8601Date(),
-						time = this.DropOff.ToIso8601Time(),
-					},
-					driverInfo = new
-					{
-						age = 25,
-						nationality = session.Nationality,
-					},
-				}
-			}, session.CancellationToken);
+			this.Request.posId = service.GetServiceForRequest(basePath).PosId;
+			var initializationResponse = await capi.PostAsync<SearchInitResponse>(basePath + "init", this.Request, session.CancellationToken);
 
 			if (initializationResponse.sessionId == null)
 			{
@@ -89,14 +41,12 @@ namespace Connexions.Travel.Commands.Car
 			response.SessionId = initializationResponse.sessionId;
 			await session.SendAsync(response);
 
-			CapiSearchStatusResponse statusResponse;
+			SearchStatusResponse statusResponse;
 			do
 			{
 				await Task.Delay(250);
-				if (session.CancellationToken.IsCancellationRequested)
-					return;
 
-				statusResponse = await capi.PostAsync<CapiSearchStatusResponse>(
+				statusResponse = await capi.PostAsync<SearchStatusResponse>(
 					basePath + "status",
 					new { sessionId = initializationResponse.sessionId },
 					session.CancellationToken);
@@ -111,10 +61,10 @@ namespace Connexions.Travel.Commands.Car
 
 			const int pageSize = 10;
 
-			var page = await capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+			var page = await capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 			{
 				sessionId = initializationResponse.sessionId,
-				currency = this.Currency,
+				currency = this.Request.currency,
 				contentPrefs = new[]
 				{
 					"all",
@@ -131,7 +81,7 @@ namespace Connexions.Travel.Commands.Car
 
 			response.FirstPage = page;
 
-			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, CapiSearchResultsResponse>());
+			var searchesBySession = session.GetOrAdd(typeof(Search), type => new ConcurrentDictionary<String, SearchResultsResponse>());
 			searchesBySession.Clear(); //Only allowing one to be stored for now until some kind of expiration process is in place.
 
 			if (statusResponse.resultsCount <= pageSize)
@@ -150,10 +100,10 @@ namespace Connexions.Travel.Commands.Car
 
 			var fullResultPages = await Task.WhenAll(Enumerable
 				.Range(1, statusResponse.resultsCount / fullResultPageSize + (statusResponse.resultsCount % fullResultPageSize != 0 ? 1 : 0))
-				.Select(pageNumber => capi.PostAsync<CapiSearchResultsResponse>(basePath + "results", new
+				.Select(pageNumber => capi.PostAsync<SearchResultsResponse>(basePath + "results", new
 				{
 					sessionId = initializationResponse.sessionId,
-					currency = this.Currency,
+					currency = this.Request.currency,
 					contentPrefs = new[]
 					{
 						"all",
@@ -171,7 +121,7 @@ namespace Connexions.Travel.Commands.Car
 				})
 				));
 
-			var fullResults = new CapiSearchResultsResponse
+			var fullResults = new SearchResultsResponse
 			{
 				carRentals = fullResultPages
 				.SelectMany(fullResultPage => fullResultPage.carRentals)

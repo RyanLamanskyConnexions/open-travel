@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi;
+
 	class Price : Message, ICommand
 	{
 		public string Currency;
@@ -16,7 +18,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 		public Room[] Rooms;
 
-		public class CapiPriceResponse : CapiBaseResponse
+		public class CapiPriceResponse : BaseResponse
 		{
 			/// <summary>
 			/// Unique session identifier for the current session. You can obtain the <see cref="sessionId"/> for your current session from the Room List API's response.

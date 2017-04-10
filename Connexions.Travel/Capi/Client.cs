@@ -8,24 +8,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Connexions.Travel
+namespace Connexions.Travel.Capi
 {
-	class CapiClient : ICapiClient
+	class Client : ICapiClient
 	{
 		private readonly Configuration.IServiceResolver resolver;
 
-		public CapiClient(Configuration.IServiceResolver resolver)
+		public Client(Configuration.IServiceResolver resolver)
 		{
 			this.resolver = resolver;
 		}
 
-		/// <summary>
-		/// Thread safe as long as settings aren't changed.
-		/// </summary>
-		static readonly JsonSerializer json = new JsonSerializer();
-
 		async Task<T> ICapiClient.PostAsync<T>(string path, object body, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			var service = this.resolver.GetServiceForRequest(path);
 
 			using (var message = new HttpRequestMessage(HttpMethod.Post, service.Url + path))
@@ -44,7 +41,7 @@ namespace Connexions.Travel
 					using (var textReader = new System.IO.StreamReader(stream, Encoding.UTF8, true, 1 << 12, true))
 					using (var jsonReader = new JsonTextReader(textReader))
 					{
-						var result = json.Deserialize<T>(jsonReader);
+						var result = new JsonSerializer().Deserialize<T>(jsonReader);
 						if (result is IHttpResponseHeaders httpInfo)
 						{
 							httpInfo.HttpStatusCode = response.StatusCode;

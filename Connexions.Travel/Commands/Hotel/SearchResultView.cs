@@ -8,6 +8,8 @@ using static System.Diagnostics.Debug;
 
 namespace Connexions.Travel.Commands.Hotel
 {
+	using Capi.Hotel;
+
 	/// <summary>
 	/// Changes the view of results based on provided input.
 	/// </summary>
@@ -31,7 +33,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 		class SearchResultViewResponse : CommandMessage
 		{
-			public SearchResultViewResponse(SearchResultView view, CapiSearchResultsResponse data)
+			public SearchResultViewResponse(SearchResultView view, SearchResultsResponse data)
 				: base(view)
 			{
 				Assert(data != null);
@@ -47,12 +49,12 @@ namespace Connexions.Travel.Commands.Hotel
 					;
 			}
 
-			public CapiSearchResultsResponse.Hotel[] hotels;
+			public SearchResultsResponse.Hotel[] hotels;
 		}
 
 		Task ICommand.ExecuteAsync(Session session)
 		{
-			session.TryGet(typeof(Search), out ConcurrentDictionary<String, CapiSearchResultsResponse> dictionary);
+			session.TryGet(typeof(Search), out ConcurrentDictionary<String, SearchResultsResponse> dictionary);
 			var data = dictionary[this.SessionId];
 			return session.SendAsync(new SearchResultViewResponse(this, data));
 		}

@@ -54,14 +54,46 @@ export interface ICapiRoomSearchResultsResponse extends TravelApi.ICapiBaseRespo
 }
 
 export interface IRoom {
+	/** Unique ID for this specific room information. This refId is used as the reference in the rateOccupancies array to identify this specific room. */
 	refId: string;
+
+	/** Name of this room. */
 	name: string;
+
+	/** Indicates the type of this room. */
 	type: string;
-	desc: string;
+
+	/** Code for this room. */
 	code: string;
+
+	/** Code for this room type. */
 	roomTypeCode: string;
+
+	/** Indicates the number of rooms available for this room type. */
+	availableRoomCount: number;
+
+	/** Indicates the maximum number of guests that can stay in the room. */
+	maxOccupancy: number;
+
+	/** Contains the list of information about the beds available in the room. */
+	bedDetails: IBedDetails;
+
+	/** Indicates whether the room is a smoking room or a nonsmoking room. */
 	smokingIndicator: string;
+
+	/** The output of safe HTML parsing from the raw description. */
 	SanitizedDescription: IParsed[];
+}
+
+export interface IBedDetails {
+	/**  Indicates the bed type, such as a king, queen, double, or bunk bed. */
+	type: string;
+
+	/** Description of this bed type. */
+	desc: string;
+
+	/** Indicates the number of beds available for this bed type. */
+	count: number;
 }
 
 export interface IPolicy {
@@ -157,8 +189,7 @@ export interface IBookingInitializationResponse {
 }
 
 /** The response from a booking status API call. */
-export interface IBookingStatusResponse extends IBookingInitializationResponse
-{
+export interface IBookingStatusResponse extends IBookingInitializationResponse {
 	/** Indicates the progress of the Book API call. */
 	bookingProgress: string;
 	/** Indicates the status of the hotel booking. */

@@ -4,9 +4,9 @@ using System.Net;
 
 #pragma warning disable IDE1006 // CAPI naming styles follow a different standard than .NET
 
-namespace Connexions.Travel
+namespace Connexions.Travel.Capi
 {
-	class CapiBaseResponse : IHttpResponseHeaders
+	class BaseResponse : IHttpResponseHeaders
 	{
 		/// <summary>
 		/// Only populated when an error occurs, a predefined error code.

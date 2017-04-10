@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Connexions.Travel.Commands.Car
+namespace Connexions.Travel.Capi.Car
 {
 	/// <summary>
 	/// Contains the full results from a search.
 	/// </summary>
-	class CapiSearchResultsResponse : CapiBaseResponse
+	class SearchResultsResponse : BaseResponse
 	{
 		public string sessionId;
 		public string currency;

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Connexions.Travel.Commands.Hotel
+namespace Connexions.Travel.Capi.Hotel
 {
 	/// <summary>
 	/// Compares CAPI hotel images for quality based on their caption and dimensions.
 	/// </summary>
-	sealed class ImageComparer : IComparer<CapiSearchResultsResponse.Hotel.Image>
+	sealed class ImageComparer : IComparer<SearchResultsResponse.Hotel.Image>
 	{
 		/// <summary>
 		/// Image categories moved to the start of the set.
@@ -45,7 +45,7 @@ namespace Connexions.Travel.Commands.Hotel
 
 		public static readonly ImageComparer Instance = new ImageComparer();
 
-		public static int Compare(CapiSearchResultsResponse.Hotel.Image x, CapiSearchResultsResponse.Hotel.Image y)
+		public static int Compare(SearchResultsResponse.Hotel.Image x, SearchResultsResponse.Hotel.Image y)
 		{
 			var xScore = Score(x);
 			var yScore = Score(y);
@@ -59,7 +59,7 @@ namespace Connexions.Travel.Commands.Hotel
 				* -1;
 		}
 
-		int IComparer<CapiSearchResultsResponse.Hotel.Image>.Compare(CapiSearchResultsResponse.Hotel.Image x, CapiSearchResultsResponse.Hotel.Image y)
+		int IComparer<SearchResultsResponse.Hotel.Image>.Compare(SearchResultsResponse.Hotel.Image x, SearchResultsResponse.Hotel.Image y)
 			=> Compare(x, y);
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace Connexions.Travel.Commands.Hotel
 		/// </summary>
 		/// <param name="image">The image to consider.</param>
 		/// <returns>A number where lower values (potentially negative) indicates a better image.</returns>
-		public static int Score(CapiSearchResultsResponse.Hotel.Image image)
+		public static int Score(SearchResultsResponse.Hotel.Image image)
 		{
 			if (image == null)
 				return int.MaxValue;
