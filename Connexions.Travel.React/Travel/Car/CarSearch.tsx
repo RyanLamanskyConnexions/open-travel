@@ -147,9 +147,13 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 			}
 		}
 
-		return (
-			<div className="CarSearch">
-				<h3>Car Search</h3>
+		let searchError: JSX.Element | undefined;
+		let status: JSX.Element | undefined;
+		if (!this.state.SearchInProgress && this.state.SearchResponse.ErrorMessage) {
+			searchError = <p>{this.state.SearchResponse.ErrorMessage}</p>;
+		}
+		else {
+			status = (
 				<div>
 					<h4>Status</h4>
 					<dl>
@@ -166,6 +170,15 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 								: "No"
 						}{!!this.state.SearchResponse.FullResultsAvailable ? "; full results available." : ""}</dd>
 					</dl>
+				</div>
+			);
+		}
+
+		return (
+			<div className="CarSearch">
+				<h3>Car Search</h3>
+				<div>
+					{status}
 					<div>
 						<h4>Results</h4>
 						<PageList
@@ -175,6 +188,7 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 							ChangePage={pageChange}
 						/>
 						{results}
+						{searchError}
 						<PageList
 							Disabled={this.state.SearchInProgress}
 							PageCount={this.state.SearchResponse.Count / itemsPerPage}

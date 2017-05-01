@@ -385,13 +385,12 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 		};
 
 		let searchError: JSX.Element | undefined;
+		let status: JSX.Element | undefined;
 		if (!this.state.SearchInProgress && this.state.SearchResponse.ErrorMessage) {
 			searchError = <p>{this.state.SearchResponse.ErrorMessage}</p>;
 		}
-
-		return (
-			<div className="HotelSearch">
-				<h3>Hotel Search</h3>
+		else {
+			status = (
 				<div>
 					<h4>Status</h4>
 					<dl>
@@ -409,6 +408,13 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 						}{!!this.state.SearchResponse.FullResultsAvailable ? "; full results available." : ""}</dd>
 					</dl>
 				</div>
+			);
+		}
+
+		return (
+			<div className="HotelSearch">
+				<h3>Hotel Search</h3>
+				{status}
 				<div>
 					<h4>Results</h4>
 					<PageList

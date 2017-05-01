@@ -56,7 +56,18 @@ namespace Connexions.Travel
 		/// <param name="statusCode">The message to be wrapped.</param>
 		/// <param name="rawBody">The unparsed body</param>
 		public JsonServiceException(HttpStatusCode statusCode, string rawBody)
-			: base("Error occurred with JSON service call.")
+			: this(statusCode, rawBody, "Error occurred with JSON service call.")
+		{
+		}
+
+		/// <summary>
+		/// Creates a new <see cref="JsonServiceException"/> wrapping the provided <see cref="HttpStatusCode"/> and raw content body.
+		/// </summary>
+		/// <param name="statusCode">The message to be wrapped.</param>
+		/// <param name="rawBody">The unparsed body</param>
+		/// <param name="message">The error message, becomes <see cref="Exception.Message"/>.</param>
+		public JsonServiceException(HttpStatusCode statusCode, string rawBody, string message)
+			: base(message)
 		{
 			StatusCode = statusCode;
 

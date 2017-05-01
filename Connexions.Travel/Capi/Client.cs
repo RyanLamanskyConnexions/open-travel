@@ -26,7 +26,8 @@ namespace Connexions.Travel.Capi
 			var service = this.resolver.GetServiceForRequest(path);
 
 			using (var message = new HttpRequestMessage(HttpMethod.Post, service.Url + path))
-			using (var client = new HttpClient(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip }))
+			using (var handler = new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip })
+			using (var client = new HttpClient(handler))
 			{
 				message.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
 				message.Headers.Add("oski-tenantId", service.TenantId);
@@ -34,6 +35,9 @@ namespace Connexions.Travel.Capi
 
 				using (var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
 				{
+					if (response.StatusCode == HttpStatusCode.Redirect)
+						throw new JsonServiceException(response.StatusCode, null, "Service returned HTTP Redirect unexpectedly" + (response.Headers.TryGetValues("Location", out var values) ? $", suggested URL: {values.FirstOrDefault()}" : "."));
+
 					if (response.Content.Headers.ContentType.MediaType != "application/json")
 						throw new JsonServiceException(response, await response.Content.ReadAsStringAsync());
 
