@@ -51,7 +51,7 @@ export interface ISessionProperty {
 }
 
 /** The root React node, holds on to a WebSocket for the duration of the user's visit. */
-export default class Session extends React.Component<void, ISessionState> {
+export default class Session extends React.Component<{}, ISessionState> {
 	private socket: WebSocket;
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
