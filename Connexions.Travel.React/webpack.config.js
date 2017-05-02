@@ -20,12 +20,12 @@ module.exports = {
 		]
 	},
 	devtool: "source-map",
-	externals: {
-		//These are loaded via CDN in index.html
-		"react": "React",
-		"react-dom": "ReactDOM"
-	},
 	plugins: [
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('production')
+			}
+		}),
 		new webpack.optimize.UglifyJsPlugin(
 			{
 				sourceMap: true

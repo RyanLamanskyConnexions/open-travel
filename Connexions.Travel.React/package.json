@@ -9,6 +9,8 @@
 		"gulp-clean": "latest",
 		"gulp-sass": "latest",
 		"gulp-sourcemaps": "latest",
+		"react": "latest",
+		"react-dom": "latest",
 		"ts-loader": "latest",
 		"typescript": "latest",
 		"webpack": "latest",
