@@ -2,21 +2,36 @@
 const path = require("path");
 
 module.exports = {
-	entry: ["./Main"],
+	entry: {
+		main: ["./Main"]
+	},
 	output: {
 		path: path.resolve(__dirname + "/wwwroot/", "build"),
+		publicPath: "/build/",
 		filename: "bundle.js"
 	},
 	resolve: {
 		extensions: [".ts", ".tsx", ".js"]
 	},
 	module: {
-		loaders: [
+		rules: [
+			{
+				//ASP.NET Core WebpackDevMiddlewareOptions.HotModuleReplacement requires babel.
+				//TypeScript alone would otherwise be enough.
+				test: /\.ts(x?)$/,
+				exclude: /node_modules/,
+				use: {
+					loader: 'babel-loader',
+					options: {
+						cacheDirectory: true
+					}
+				}
+			},
 			{
 				test: /\.tsx?$/,
-				loader: "ts-loader",
-				exclude: /node_modules/
-			}
+				exclude: /node_modules/,
+				use: 'ts-loader'
+			},
 		]
 	},
 	devtool: "source-map",
@@ -26,9 +41,8 @@ module.exports = {
 				NODE_ENV: JSON.stringify('production')
 			}
 		}),
-		new webpack.optimize.UglifyJsPlugin(
-			{
-				sourceMap: true
-			})
+		new webpack.optimize.UglifyJsPlugin({
+			sourceMap: true
+		})
 	]
 };

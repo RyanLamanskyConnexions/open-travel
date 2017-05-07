@@ -3,7 +3,7 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"alwaysStrict": true,
-		"jsx": "react",
+		"jsx": "preserve",
 		"module": "commonjs",
 		"newLine": "LF",
 		"noEmitOnError": true,
@@ -17,7 +17,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"strictNullChecks": true,
-		"target": "es5"
+		"target": "es6"
 	},
 	"exclude": [
 		"node_modules"
