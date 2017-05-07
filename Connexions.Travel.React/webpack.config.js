@@ -39,12 +39,9 @@ module.exports = env => {
 				},
 			]
 		},
+		devtool: "source-map",
 		plugins: isDevBuild ? [
 			// Plugins that apply in development builds only
-			new webpack.SourceMapDevToolPlugin({
-				filename: "[file].map",
-				moduleFilenameTemplate: path.relative(bundleOutputDir, "[resourcePath]")
-			})
 		] : [
 				// Plugins that apply in production builds only
 				new webpack.DefinePlugin({
@@ -52,7 +49,10 @@ module.exports = env => {
 						NODE_ENV: JSON.stringify('production')
 					}
 				}),
-				new webpack.optimize.UglifyJsPlugin()
+				new webpack.optimize.UglifyJsPlugin(
+					{
+						sourceMap: true
+					})
 			]
 	}
 };
