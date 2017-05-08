@@ -1,34 +1,58 @@
-﻿const webpack = require("webpack");
-const path = require("path");
+﻿"use strict";
 
-module.exports = {
-	entry: ["./Main"],
-	output: {
-		path: path.resolve(__dirname + "/wwwroot/", "build"),
-		filename: "bundle.js"
-	},
-	resolve: {
-		extensions: [".ts", ".tsx", ".js"]
-	},
-	module: {
-		loaders: [
-			{
-				test: /\.tsx?$/,
-				loader: "ts-loader",
-				exclude: /node_modules/
-			}
-		]
-	},
-	devtool: "source-map",
-	plugins: [
-		new webpack.DefinePlugin({
-			'process.env': {
-				NODE_ENV: JSON.stringify('production')
-			}
-		}),
-		new webpack.optimize.UglifyJsPlugin(
-			{
-				sourceMap: true
-			})
-	]
+const webpack = require("webpack");
+const path = require("path");
+const bundleOutputDir = './wwwroot/build';
+
+module.exports = env => {
+	const isDevBuild = !(env && env.prod);
+	return {
+		entry: {
+			main: ["./Main"]
+		},
+		output: {
+			path: path.join(__dirname, bundleOutputDir),
+			publicPath: "/build/",
+			filename: "bundle.js"
+		},
+		resolve: {
+			extensions: [".ts", ".tsx", ".js"]
+		},
+		module: {
+			rules: [
+				{
+					//ASP.NET Core WebpackDevMiddlewareOptions.HotModuleReplacement requires babel.
+					//TypeScript alone would otherwise be enough.
+					test: /\.ts(x?)$/,
+					exclude: /node_modules/,
+					use: {
+						loader: 'babel-loader',
+						options: {
+							cacheDirectory: true
+						}
+					}
+				},
+				{
+					test: /\.tsx?$/,
+					exclude: /node_modules/,
+					use: 'ts-loader'
+				},
+			]
+		},
+		devtool: "source-map",
+		plugins: isDevBuild ? [
+			// Plugins that apply in development builds only
+		] : [
+				// Plugins that apply in production builds only
+				new webpack.DefinePlugin({
+					'process.env': {
+						NODE_ENV: JSON.stringify('production')
+					}
+				}),
+				new webpack.optimize.UglifyJsPlugin(
+					{
+						sourceMap: true
+					})
+			]
+	}
 };

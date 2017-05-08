@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
@@ -38,7 +39,14 @@ namespace Connexions.Travel
 			loggerFactory.AddConsole();
 
 			if (env.IsDevelopment())
+			{
 				app.UseDeveloperExceptionPage();
+				app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+				{
+					HotModuleReplacement = true,
+					ReactHotModuleReplacement = true,
+				});
+			}
 
 			app
 				.UseResponseCompression()
