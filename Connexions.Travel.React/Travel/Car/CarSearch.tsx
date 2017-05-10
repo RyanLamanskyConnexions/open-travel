@@ -1,7 +1,6 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
 import * as CarApi from "./Api";
-import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
 import Travel from "../Travel";
@@ -69,13 +68,13 @@ export default class CarSearch extends React.Component<IProperties, ISearchState
 				criteria: {
 					pickup: {
 						airportCode: this.props.Travel.state.Destination.IataCode,
-						date: Api.CreateInitialDate(30),
+						date: this.props.Travel.state.CheckInDate.format("YYYY-MM-DD"),
 						time: "18:30",
 					},
 					dropOff: {
 						sameAsPickup: true,
 						//airportCode:,
-						date: Api.CreateInitialDate(32),
+						date: this.props.Travel.state.CheckOutDate.format("YYYY-MM-DD"),
 						time: "20:30",
 					},
 					driverInfo: {
