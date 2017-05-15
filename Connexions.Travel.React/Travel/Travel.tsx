@@ -19,7 +19,7 @@ interface IState {
 	CarSearchInProgress: boolean;
 }
 
-export default class Travel extends React.Component<ITravelProperties, IState> {
+export default class Travel extends React.PureComponent<ITravelProperties, IState> {
 	private HotelSearch: HotelSearch;
 	private CarSearch: CarSearch;
 

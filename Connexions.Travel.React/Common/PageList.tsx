@@ -8,7 +8,7 @@ export interface IPageListProperties {
 }
 
 /** An ordered list of page buttons that use 0-based indexing internally and presents as 1-based. */
-export default class PageList extends React.Component<IPageListProperties, void> {
+export default class PageList extends React.PureComponent<IPageListProperties, void> {
 	render() {
 		if (!this.props.PageCount)
 			return null;

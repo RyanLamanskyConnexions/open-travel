@@ -28,7 +28,7 @@ interface IProperties extends Session.ISessionProperty {
 	Travel: Travel;
 }
 
-export default class CarSearch extends React.Component<IProperties, ISearchState> {
+export default class CarSearch extends React.PureComponent<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
