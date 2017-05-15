@@ -13,7 +13,7 @@ interface IRoomProperties extends Session.ISessionProperty {
 	Category: Hotel.HotelCategory;
 }
 
-export default class Room extends React.Component<IRoomProperties, void> {
+export default class Room extends React.PureComponent<IRoomProperties, void> {
 	render() {
 		const room = this.props.Room;
 		const rate = this.props.Rate;

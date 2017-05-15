@@ -7,7 +7,7 @@ interface IResult extends Session.ISessionProperty {
 	Vehicle: CarApi.IVehicle;
 }
 
-export default class Result extends React.Component<IResult, void> {
+export default class Result extends React.PureComponent<IResult, void> {
 	render() {
 		const vehicle = this.props.Vehicle;
 

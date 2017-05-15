@@ -2,7 +2,6 @@
 import * as Session from "../../Session";
 import SessionTemplate from "../../Session";
 import * as HotelApi from "./Api";
-import * as Api from "../Api";
 import Result from "./Result";
 import PageList from "../../Common/PageList";
 import * as Category from "../../Commerce/Category";
@@ -267,7 +266,7 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 	}
 }
 
-export default class HotelSearch extends React.Component<IProperties, ISearchState> {
+export default class HotelSearch extends React.PureComponent<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -317,8 +316,8 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 					],
 				}],
 				stayPeriod: {
-					start: Api.CreateInitialDate(30),
-					end: Api.CreateInitialDate(32),
+					start: this.props.Travel.state.CheckInDate.format("YYYY-MM-DD"),
+					end: this.props.Travel.state.CheckOutDate.format("YYYY-MM-DD"),
 				},
 				travellerCountryCodeOfResidence: "US",
 				travellerNationalityCode: "US",

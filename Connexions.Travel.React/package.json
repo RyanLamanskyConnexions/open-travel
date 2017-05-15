@@ -5,6 +5,7 @@
 	"devDependencies": {
 		"@types/react": "latest",
 		"@types/react-dom": "latest",
+		"@types/react-datepicker": "0.46.0",
 		"aspnet-webpack": "1.0.29",
 		"aspnet-webpack-react": "1.0.5",
 		"babel-core": "6.24.1",
@@ -15,8 +16,10 @@
 		"gulp": "latest",
 		"gulp-sass": "latest",
 		"gulp-sourcemaps": "latest",
+		"moment": "2.18.1",
 		"react": "latest",
 		"react-dom": "latest",
+		"react-datepicker": "0.46.0",
 		"ts-loader": "latest",
 		"typescript": "latest",
 		"webpack": "latest",
