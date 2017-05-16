@@ -428,6 +428,7 @@ export default class HotelSearch extends React.Component<IProperties, ISearchSta
 								<Result
 									Session={this.props.Session}
 									Category={this.props.Travel.props.HotelCategory}
+									Travel={this.props.Travel}
 									Hotel={hotel}
 									key={hotel.id
 									} />) :
