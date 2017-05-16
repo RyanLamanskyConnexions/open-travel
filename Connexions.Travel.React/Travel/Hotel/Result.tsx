@@ -31,7 +31,7 @@ interface IRoomSearchResponse extends Session.ICommandMessage {
 }
 
 /** Shows the details for a single hotel. */
-export default class Result extends React.PureComponent<IResult, IResultState> {
+export default class Result extends React.Component<IResult, IResultState> {
 	constructor() {
 		super();
 

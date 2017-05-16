@@ -9,7 +9,7 @@ interface IState {
 	CheckoutInProgress: boolean;
 }
 
-export default class Checkout extends React.PureComponent<ICheckoutProperties, IState> {
+export default class Checkout extends React.Component<ICheckoutProperties, IState> {
 	private confirmations: JSX.Element[];
 
 	constructor() {
