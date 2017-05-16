@@ -266,7 +266,7 @@ export class HotelCategory extends Category.Category<IRoomRate> {
 	}
 }
 
-export default class HotelSearch extends React.PureComponent<IProperties, ISearchState> {
+export default class HotelSearch extends React.Component<IProperties, ISearchState> {
 	private searchStarted: number;
 
 	constructor() {
@@ -428,6 +428,7 @@ export default class HotelSearch extends React.PureComponent<IProperties, ISearc
 								<Result
 									Session={this.props.Session}
 									Category={this.props.Travel.props.HotelCategory}
+									Travel={this.props.Travel}
 									Hotel={hotel}
 									key={hotel.id
 									} />) :

@@ -1,12 +1,13 @@
 ﻿import * as React from "react";
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
-import * as Api from "../Api";
 import * as Common from "../../Common/Objects";
 import Room from "./Room";
 import * as Hotel from "./HotelSearch"
+import Travel from "../Travel";
 
 interface IResult extends Session.ISessionProperty {
+	Travel: Travel;
 	Hotel: HotelApi.IHotel;
 	Category: Hotel.HotelCategory;
 }
@@ -31,7 +32,7 @@ interface IRoomSearchResponse extends Session.ICommandMessage {
 }
 
 /** Shows the details for a single hotel. */
-export default class Result extends React.PureComponent<IResult, IResultState> {
+export default class Result extends React.Component<IResult, IResultState> {
 	constructor() {
 		super();
 
@@ -61,8 +62,8 @@ export default class Result extends React.PureComponent<IResult, IResultState> {
 					],
 				}],
 				stayPeriod: {
-					start: Api.CreateInitialDate(30),
-					end: Api.CreateInitialDate(32),
+					start: this.props.Travel.state.CheckInDate.format("YYYY-MM-DD"),
+					end: this.props.Travel.state.CheckOutDate.format("YYYY-MM-DD"),
 				},
 				travellerCountryCodeOfResidence: "US",
 				travellerNationalityCode: "US",

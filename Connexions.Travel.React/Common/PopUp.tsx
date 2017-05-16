@@ -6,7 +6,7 @@ interface IPopUpProperties {
 	OnClose: () => void;
 }
 
-export default class PopUp extends React.PureComponent<IPopUpProperties, void> {
+export default class PopUp extends React.Component<IPopUpProperties, void> {
 	render(): JSX.Element {
 		const showClass = this.props.Show ? "Show" : "";
 		return (

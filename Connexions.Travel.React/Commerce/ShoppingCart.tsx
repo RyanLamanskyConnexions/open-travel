@@ -12,7 +12,7 @@ interface IShoppingCartState {
 	ItemCount: number;
 }
 
-export default class ShoppingCart extends React.PureComponent<IShoppingCartProperties, IShoppingCartState> {
+export default class ShoppingCart extends React.Component<IShoppingCartProperties, IShoppingCartState> {
 	constructor() {
 		super();
 
