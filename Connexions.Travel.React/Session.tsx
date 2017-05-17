@@ -1,9 +1,7 @@
 ﻿import * as React from "react";
-import Travel from "./Travel/Travel";
 import ShoppingCart from "./Commerce/ShoppingCart"
 import * as Category from "./Commerce/Category"
 import Checkout from "./Commerce/Checkout"
-import * as HotelSearch from "./Travel/Hotel/HotelSearch";
 import * as Common from "./Common/Objects";
 
 export const enum View {
@@ -56,9 +54,7 @@ export default class Session extends React.Component<{}, ISessionState> {
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
 	public Cart: ShoppingCart;
-	public Travel: Travel;
 	public Categories: Category.ICategory[];
-	private HotelCategory: HotelSearch.HotelCategory;
 
 	constructor() {
 		super();
@@ -71,7 +67,6 @@ export default class Session extends React.Component<{}, ISessionState> {
 		this.commandNumber = 0;
 		this.activeCommands = {};
 		this.Categories = [
-			this.HotelCategory = new HotelSearch.HotelCategory(this),
 		];
 	}
 
@@ -160,12 +155,6 @@ export default class Session extends React.Component<{}, ISessionState> {
 						ref={ref => this.Cart = ref}
 						Session={this}
 						Categories={this.Categories}
-					/>
-					<Travel
-						ref={ref => this.Travel = ref}
-						Session={this}
-						Show={this.state.View === View.Main}
-						HotelCategory={this.HotelCategory}
 					/>
 					<Checkout
 						Session={this}
