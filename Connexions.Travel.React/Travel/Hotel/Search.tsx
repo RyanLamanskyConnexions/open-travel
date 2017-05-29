@@ -269,9 +269,8 @@ export class Search extends React.Component<IProperties, IState> {
 					</div>
 				</div>
 				<Results
-					SearchStep={this.state.SearchStep}
-					Response={this.state.Response}
-					SearchTime={this.state.SearchTime}
+					Search={this.state}
+					Session={this.props.Session}
 				/>
 			</div>
 		);

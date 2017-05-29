@@ -1,12 +1,10 @@
 ﻿import * as React from "react";
+import * as Session from "../../Session";
 import * as Search from "./Search";
-import * as HotelApi from "./Api";
-import HotelResult from "./HotelResult";
+import * as HotelResult from "./HotelResult";
 
-interface IProperties {
-	SearchStep: Search.Step;
-	Response?: HotelApi.ICapiSearchResultsResponse;
-	SearchTime: number;
+interface IProperties extends Session.ISessionProperty  {
+	Search: Search.IState;
 }
 
 interface IState {
@@ -19,11 +17,11 @@ export default class Results extends React.Component<IProperties, IState>
 	}
 
 	public render(): JSX.Element | null {
-		if (this.props.SearchStep <= Search.Step.Initiating)
+		if (this.props.Search.SearchStep <= Search.Step.Initiating)
 			return null;
 
 		let searchProgress: string;
-		switch (this.props.SearchStep) {
+		switch (this.props.Search.SearchStep) {
 			default: searchProgress = "..."; break;
 			case Search.Step.Initiating: searchProgress = "Search initiating..."; break;
 			case Search.Step.NoResults: searchProgress = "Waiting for results..."; break;
@@ -35,13 +33,15 @@ export default class Results extends React.Component<IProperties, IState>
 
 
 		const hotelResults: JSX.Element[] = [];
-		const response = this.props.Response;
+		const response = this.props.Search.Response;
 		if (response && response.hotels) {
 			for (const hotel of response.hotels)
 				hotelResults.push(
-					<HotelResult
+					<HotelResult.HotelResult
 						key={hotel.id}
 						Hotel={hotel}
+						Search={this.props.Search}
+						Session={this.props.Session}
 					/>
 				);
 		}

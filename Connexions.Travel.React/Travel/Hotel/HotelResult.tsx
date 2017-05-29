@@ -1,14 +1,113 @@
 ﻿import * as React from "react";
+import * as Session from "../../Session";
 import * as HotelApi from "./Api";
+import * as Search from "./Search";
+import * as Common from "../../Common/Objects";
+import RoomResults from "./RoomResults";
 
-interface IProperties {
+interface IRoomSearchResponse extends Session.ICommandMessage {
+	SessionId: string;
+	Count: number;
+	FullResultsAvailable: boolean;
+	Results: HotelApi.ICapiRoomSearchResultsResponse;
+}
+
+interface IProperties extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
+	Search: Search.IState;
 }
 
-interface IState {
+interface IRecommendedRoom {
+	SessionId: string;
+	RecommendationId: string;
+	Room: HotelApi.IRoom;
+	Rate: HotelApi.IRate;
 }
 
-export default class HotelResult extends React.Component<IProperties, IState> {
+export const enum Step {
+	None,
+	Initiating,
+	NoResults,
+	AllResultsReady,
+}
+
+export interface IState {
+	RoomSearchInProgress: boolean;
+	Rooms: IRecommendedRoom[];
+	SearchStep: Step;
+}
+
+export class HotelResult extends React.Component<IProperties, IState> {
+	constructor() {
+		super();
+
+		this.state = {
+			RoomSearchInProgress: false,
+			Rooms: [],
+			SearchStep: Step.None,
+		};
+	}
+	private GetRooms() {
+		this.setState({
+			RoomSearchInProgress: true,
+		});
+
+		this.props.Session.WebSocketCommand({
+			"$type": "Connexions.Travel.Commands.Hotel.Rooms, Connexions.Travel",
+			Request: {
+				currency: this.props.Search.Currency,
+				roomOccupancies: [{
+					occupants: [{
+						type: "adult",
+						age: 25,
+					}, {
+						type: "adult",
+						age: 26,
+					},
+					],
+				}],
+				stayPeriod: {
+					start: this.props.Search.CheckInDate,
+					end: this.props.Search.CheckOutDate,
+				},
+				travellerCountryCodeOfResidence: "US",
+				travellerNationalityCode: "US",
+				hotelId: this.props.Hotel.id,
+			}
+		}, (response: IRoomSearchResponse) => {
+			if (!response.RanToCompletion) {
+				this.setState({ SearchStep: Step.NoResults });
+				return;
+			}
+
+			const ratesByRefId: Common.IStringDictionary<HotelApi.IRate> = {};
+			for (const rate of response.Results.rates) {
+				ratesByRefId[rate.refId] = rate;
+			}
+
+			const roomsByRefId: Common.IStringDictionary<HotelApi.IRoom> = {};
+			for (const room of response.Results.rooms) {
+				roomsByRefId[room.refId] = room;
+			}
+
+			this.setState({
+				SearchStep: Step.AllResultsReady,
+				RoomSearchInProgress: false,
+				Rooms: response.Results.recommendations.map(reccomendation => {
+					const rate = ratesByRefId[reccomendation.rateRefIds[0]];
+					return {
+						SessionId: response.SessionId,
+						RecommendationId: reccomendation.id,
+						Rate: rate,
+						Room: roomsByRefId[rate.rateOccupancies[0].roomRefId],
+					}
+				}),
+			});
+		});
+
+		this.setState({ SearchStep: Step.Initiating });
+	}
+
 	public render(): JSX.Element {
 		const hotel = this.props.Hotel;
 
@@ -51,6 +150,18 @@ export default class HotelResult extends React.Component<IProperties, IState> {
 				<span>{stars} {hotel.name}</span>
 				<div><a href={mapUrl} target="_blank" rel="noopener noreferrer nofollow">{geocode}</a>; ID# {hotel.id}</div>
 				<div>Total: <strong>${hotel.fare.totalFare.toFixed(2)}</strong> {hotel.fare.currency}</div>
+				<div>
+					<button
+						disabled={this.state.SearchStep > Step.None}
+						onClick={() => this.GetRooms()}
+					>Show Rooms</button>
+				</div>
+				<RoomResults
+					Category={this.props.Session.HotelCategory}
+					Session={this.props.Session}
+					Hotel={hotel}
+					Search={this.state}
+				/>
 			</li>
 		);
 	}
