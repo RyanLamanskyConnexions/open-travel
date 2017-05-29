@@ -10,6 +10,7 @@ namespace Connexions.Travel.Commands.Hotel
 	class Search : Message, ICommand
 	{
 		public HotelSearchInitRequest Request;
+		public string InitialSort;
 
 		class SearchResponse : CommandMessage
 		{
@@ -75,7 +76,7 @@ namespace Connexions.Travel.Commands.Hotel
 				{
 					pageNo = 1,
 					pageSize = pageSize,
-					orderBy = "price asc",
+					orderBy = this.InitialSort,
 				},
 			}, session.CancellationToken);
 
@@ -116,7 +117,7 @@ namespace Connexions.Travel.Commands.Hotel
 					{
 						pageNo = pageNumber,
 						pageSize = fullResultPageSize,
-						orderBy = "price asc",
+						orderBy = this.InitialSort,
 					},
 				}, session.CancellationToken).ContinueWith(task =>
 				{

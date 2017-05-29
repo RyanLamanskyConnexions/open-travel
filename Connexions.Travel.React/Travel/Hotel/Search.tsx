@@ -49,11 +49,13 @@ export interface IState {
 	Sort: InitialSort;
 	SearchStep: Step;
 	Response?: HotelApi.ICapiSearchResultsResponse;
+	Status: ISearchResponse;
 	SearchTime: number;
 }
 
 export class Search extends React.Component<IProperties, IState> {
 	private searchStarted: number;
+	private results: Results;
 
 	constructor() {
 		super();
@@ -70,7 +72,18 @@ export class Search extends React.Component<IProperties, IState> {
 			Sort: InitialSort.HighestPriceFirst,
 			SearchStep: Step.None,
 			SearchTime: 0,
+			Status: Search.CreateDefaultStatus(),
 		};
+	}
+
+	private static CreateDefaultStatus(): ISearchResponse {
+		return {
+			SessionId: "N/A",
+			Count: 0,
+			FirstPageAvailable: false,
+			FirstPage: {},
+			FullResultsAvailable: false,
+		} as ISearchResponse
 	}
 
 	public RunSearch() {
@@ -79,10 +92,20 @@ export class Search extends React.Component<IProperties, IState> {
 			Response: undefined,
 			SearchStep: Step.Initiating,
 			SearchTime: 0,
+			Status: Search.CreateDefaultStatus(),
 		});
+		this.results.Reset();
+
+		let initialSort: string | null;
+		switch (this.state.Sort) {
+			default: initialSort = null; break;
+			case InitialSort.HighestPriceFirst: initialSort = "price desc"; break;
+			case InitialSort.LowestPriceFirst: initialSort = "price asc"; break;
+		}
 
 		this.props.Session.WebSocketCommand({
 			"$type": "Connexions.Travel.Commands.Hotel.Search, Connexions.Travel",
+			InitialSort: initialSort,
 			Request: {
 				currency: this.state.Currency,
 				roomOccupancies: [{
@@ -115,6 +138,8 @@ export class Search extends React.Component<IProperties, IState> {
 				},
 			},
 		}, (response: ISearchResponse) => {
+			this.setState({ Status: response });
+
 			let step = this.state.SearchStep;
 
 			if (response.FullResultsAvailable && step <= Step.ReceivedAllPages)
@@ -248,8 +273,8 @@ export class Search extends React.Component<IProperties, IState> {
 						<LabeledInput Name="Initial Sort">
 							<select
 								disabled={disableSearchFields}
-								value={this.state.MinimumStars}
-								onChange={event => this.setState({ MinimumStars: parseInt(event.currentTarget.value) })}
+								value={this.state.Sort}
+								onChange={event => this.setState({ Sort: parseInt(event.currentTarget.value) })}
 							>
 								<option value={InitialSort.HighestPriceFirst}>Highest Price First</option>
 								<option value={InitialSort.LowestPriceFirst}>Lowest Price First</option>
@@ -269,6 +294,7 @@ export class Search extends React.Component<IProperties, IState> {
 					</div>
 				</div>
 				<Results
+					ref={ref => this.results = ref}
 					Search={this.state}
 					Session={this.props.Session}
 				/>
