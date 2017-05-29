@@ -3,7 +3,7 @@ import ShoppingCart from "./Commerce/ShoppingCart"
 import * as Category from "./Commerce/Category"
 import Checkout from "./Commerce/Checkout"
 import * as Common from "./Common/Objects";
-import Hotel from "./Travel/Hotel/Search";
+import * as Hotel from "./Travel/Hotel/Search";
 import Car from "./Travel/Car/Search";
 
 export const enum View {
@@ -172,31 +172,35 @@ export default class Session extends React.Component<{}, ISessionState> {
 						Session={this}
 						Categories={this.Categories}
 					/>
-					<ul className="Tabs">
-						<li>
-							<button
-								value={Tab.Hotel}
-								onClick={this.changeTab}
-								disabled={this.state.SelectedTab === Tab.Hotel}
-							>Hotel</button>
-						</li>
-						<li>
-							<button
-								value={Tab.Car}
-								onClick={this.changeTab}
-								disabled={this.state.SelectedTab === Tab.Car}
-							>Car</button>
-						</li>
-					</ul>
-					<ul className="TabPages">
-						<Hotel
+					<div
+						style={{
+							display: this.state.View !== View.Main ? "none" : undefined
+						}}
+					>
+						<ul className="Tabs">
+							<li>
+								<button
+									value={Tab.Hotel}
+									onClick={this.changeTab}
+									disabled={this.state.SelectedTab === Tab.Hotel}
+								>Hotel</button>
+							</li>
+							<li>
+								<button
+									value={Tab.Car}
+									onClick={this.changeTab}
+									disabled={this.state.SelectedTab === Tab.Car}
+								>Car</button>
+							</li>
+						</ul>
+						<Hotel.Search
+							Session={this}
 							Visible={this.state.SelectedTab === Tab.Hotel}
 						/>
 						<Car
 							Visible={this.state.SelectedTab === Tab.Car}
 						/>
-					</ul>
-					<div style={{ clear: "both" }} />
+					</div>
 					<Checkout
 						Session={this}
 						Show={this.state.View === View.Checkout}
