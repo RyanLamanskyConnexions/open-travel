@@ -2,7 +2,7 @@
 import * as Session from "../../Session";
 import * as HotelApi from "./Api";
 import { Convert } from "../../ParsedToReact";
-import * as Hotel from "./HotelSearch";
+import Category from "./Category"
 
 interface IRoomProperties extends Session.ISessionProperty {
 	RecommendationId: string;
@@ -10,7 +10,7 @@ interface IRoomProperties extends Session.ISessionProperty {
 	Hotel: HotelApi.IHotel;
 	Room: HotelApi.IRoom;
 	Rate: HotelApi.IRate;
-	Category: Hotel.HotelCategory;
+	Category: Category;
 }
 
 export default class Room extends React.Component<IRoomProperties, void> {

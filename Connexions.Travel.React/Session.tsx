@@ -1,20 +1,27 @@
 ﻿import * as React from "react";
-import Travel from "./Travel/Travel";
 import ShoppingCart from "./Commerce/ShoppingCart"
 import * as Category from "./Commerce/Category"
 import Checkout from "./Commerce/Checkout"
-import * as HotelSearch from "./Travel/Hotel/HotelSearch";
 import * as Common from "./Common/Objects";
+import * as Hotel from "./Travel/Hotel/Search";
+import HotelCategory from "./Travel/Hotel/Category";
+import Car from "./Travel/Car/Search";
 
 export const enum View {
 	Main,
 	Checkout
 }
 
+const enum Tab {
+	Hotel,
+	Car,
+}
+
 interface ISessionState {
 	SocketStatus: string;
 	KnownAirportsByCode: Common.IStringDictionary<IAirport>;
 	View: View;
+	SelectedTab: Tab;
 }
 
 /** Common features of all command response messages. */
@@ -56,9 +63,8 @@ export default class Session extends React.Component<{}, ISessionState> {
 	private commandNumber: number;
 	private activeCommands: { [key: number]: (message: ICommandMessage) => void };
 	public Cart: ShoppingCart;
-	public Travel: Travel;
 	public Categories: Category.ICategory[];
-	private HotelCategory: HotelSearch.HotelCategory;
+	public HotelCategory: HotelCategory;
 
 	constructor() {
 		super();
@@ -67,12 +73,20 @@ export default class Session extends React.Component<{}, ISessionState> {
 			SocketStatus: "None",
 			KnownAirportsByCode: {},
 			View: View.Main,
+			SelectedTab: Tab.Hotel,
 		};
+
 		this.commandNumber = 0;
 		this.activeCommands = {};
 		this.Categories = [
-			this.HotelCategory = new HotelSearch.HotelCategory(this),
+			this.HotelCategory = new HotelCategory(this),
 		];
+
+		this.changeTab = this.changeTab.bind(this);
+	}
+
+	private changeTab(event: React.MouseEvent<HTMLButtonElement>): void {
+		this.setState({ SelectedTab: parseInt(event.currentTarget.value) });
 	}
 
 	SetSocketStatus(message: string) {
@@ -161,18 +175,41 @@ export default class Session extends React.Component<{}, ISessionState> {
 						Session={this}
 						Categories={this.Categories}
 					/>
-					<Travel
-						ref={ref => this.Travel = ref}
-						Session={this}
-						Show={this.state.View === View.Main}
-						HotelCategory={this.HotelCategory}
-					/>
+					<div
+						style={{
+							display: this.state.View !== View.Main ? "none" : undefined
+						}}
+					>
+						<ul className="Tabs">
+							<li>
+								<button
+									value={Tab.Hotel}
+									onClick={this.changeTab}
+									disabled={this.state.SelectedTab === Tab.Hotel}
+								>Hotel</button>
+							</li>
+							<li>
+								<button
+									value={Tab.Car}
+									onClick={this.changeTab}
+									disabled={this.state.SelectedTab === Tab.Car}
+								>Car</button>
+							</li>
+						</ul>
+						<Hotel.Search
+							Session={this}
+							Visible={this.state.SelectedTab === Tab.Hotel}
+						/>
+						<Car
+							Visible={this.state.SelectedTab === Tab.Car}
+						/>
+					</div>
 					<Checkout
 						Session={this}
 						Show={this.state.View === View.Checkout}
 					/>
 				</div>
-				);
+			);
 		}
 		else {
 			authenticatedContent = <p>Authenticating...</p>
