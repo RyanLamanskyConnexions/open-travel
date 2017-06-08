@@ -22,7 +22,7 @@ const enum MeasurementUnit {
 	Kilometers,
 }
 
-const enum InitialSort {
+export const enum InitialSort {
 	HighestPriceFirst,
 	LowestPriceFirst,
 }
@@ -94,7 +94,7 @@ export class Search extends React.Component<IProperties, IState> {
 			SearchTime: 0,
 			Status: Search.CreateDefaultStatus(),
 		});
-		this.results.Reset();
+		this.results.Reset(this.state.Sort);
 
 		let initialSort: string | null;
 		switch (this.state.Sort) {

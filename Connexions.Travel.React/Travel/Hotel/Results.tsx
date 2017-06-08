@@ -9,6 +9,11 @@ interface ISearchResultViewResponse {
 	hotels?: HotelApi.IHotel[];
 }
 
+const enum Sort {
+	PriceAscending,
+	PriceDescending,
+}
+
 interface IProperties extends Session.ISessionProperty {
 	Search: Search.IState;
 }
@@ -17,6 +22,7 @@ interface IState {
 	PageIndex: number;
 	PageChangeInProgress: boolean;
 	View?: ISearchResultViewResponse;
+	Sort: Sort;
 }
 
 export default class Results extends React.Component<IProperties, IState>
@@ -27,14 +33,16 @@ export default class Results extends React.Component<IProperties, IState>
 		this.state = {
 			PageIndex: 0,
 			PageChangeInProgress: false,
+			Sort: props.Search.Sort === Search.InitialSort.HighestPriceFirst ? Sort.PriceDescending : Sort.PriceAscending,
 		};
 	}
 
-	public Reset() {
+	public Reset(sort: Search.InitialSort) {
 		this.setState({
 			PageIndex: 0,
 			PageChangeInProgress: false,
 			View: undefined,
+			Sort: sort === Search.InitialSort.HighestPriceFirst ? Sort.PriceDescending : Sort.PriceAscending,
 		});
 	}
 
@@ -81,6 +89,7 @@ export default class Results extends React.Component<IProperties, IState>
 				SessionId: status.SessionId,
 				ItemsPerPage: itemsPerPage,
 				PageIndex: pageIndex,
+				Sorts: [this.state.Sort], //Sorting by multiple elements could be useful.
 			}, (response: ISearchResultViewResponse) => {
 				this.setState({
 					View: response,
