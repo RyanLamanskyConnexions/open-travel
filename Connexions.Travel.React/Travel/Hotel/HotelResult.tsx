@@ -123,7 +123,12 @@ export class HotelResult extends React.Component<IProperties, IState> {
 				;
 			thumb = (
 				<figure className="Thumbnail">
-					<img src={url1x} srcSet={srcset} />
+                    <img
+                        src={url1x}
+                        srcSet={srcset}
+                        width={size1xw}
+                        height={size1xh}
+                    />
 				</figure>
 			);
 		}
